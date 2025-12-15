@@ -68,8 +68,11 @@ This application uses **Git** as the sync backend, replacing the previous Dropbo
 2. After 3 seconds (debounce), the sync process starts:
    - **Step 1:** Pull latest version from Git
    - **Step 2:** Merge with local changes if needed
-   - **Step 3:** Commit to Git
+   - **Step 3:** Commit to local Git
+   - **Step 4:** **Auto-push to remote** (if configured)
 3. When switching files, the latest version is pulled automatically
+
+**Auto-Push:** Once you configure a remote repository, all commits automatically push to it. No need to manually click the cloud icon!
 
 ### Configuration:
 
@@ -134,9 +137,12 @@ To sync with a remote Git repository (GitHub, GitLab, etc.):
    - Click "Save Configuration"
    - Remote is automatically added to Git
 
-5. **Sync:**
-   - Click cloud icon (☁️) to push/pull
-   - Your todos are now backed up!
+5. **Automatic Sync:**
+   - After setup, all commits **automatically push** to remote
+   - No need to click cloud icon (it's for manual sync/pull)
+   - Your todos are continuously backed up!
+
+**Manual Sync:** Click cloud icon (☁️) to force push/pull
 
 **Detailed Guide:** See [GIT_REMOTE_SETUP.md](GIT_REMOTE_SETUP.md) for complete setup instructions and troubleshooting.
 

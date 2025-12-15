@@ -1,7 +1,7 @@
 'use strict';
 
 import { getActiveFile, getTodosFromStorage, saveTodosToStorage } from './todo-storage.js';
-import { readGitFile, writeGitFile, isGitEnabled } from './git/api.js';
+import { readGitFile, writeGitFile, isGitEnabled, getGitConfig, syncWithRemote } from './git/api.js';
 import { saveTodosFromText, loadTodos } from './todo-load.js';
 import { updateSyncIndicator, SyncStatus } from './git/ui.js';
 import { clearCommitPending, isCommitPending, setCommitPending } from './git/offline.js';
@@ -9,6 +9,36 @@ import { logVerbose } from './todo-logging.js';
 
 let syncDebounceTimer = null;
 const SYNC_DEBOUNCE_DELAY = 3000;
+
+async function isRemoteConfigured() {
+  try {
+    const { config } = await getGitConfig();
+    return config && config.remoteUrl && config.remoteUrl.trim() !== '';
+  } catch (err) {
+    console.error('Error checking remote config:', err);
+    return false;
+  }
+}
+
+async function autoPushToRemote() {
+  const hasRemote = await isRemoteConfigured();
+  if (!hasRemote) {
+    logVerbose('No remote configured, skipping auto-push');
+    return;
+  }
+  
+  console.log('[git-sync] Remote configured, auto-pushing...');
+  try {
+    const result = await syncWithRemote();
+    if (result.success) {
+      console.log('[git-sync] Auto-push successful');
+    } else {
+      console.warn('[git-sync] Auto-push failed:', result.message);
+    }
+  } catch (err) {
+    console.error('[git-sync] Auto-push error:', err.message);
+  }
+}
 
 export async function coordinateSync() {
   clearTimeout(syncDebounceTimer);
@@ -64,6 +94,7 @@ export async function coordinateSync() {
         clearCommitPending(activeFilePath);
         finalStatus = SyncStatus.IDLE;
         logVerbose(`Successfully created initial commit for ${filename}`);
+        await autoPushToRemote();
       } else {
         finalStatus = SyncStatus.ERROR;
         errorMessage = 'Failed initial commit';
@@ -100,6 +131,7 @@ export async function coordinateSync() {
             clearCommitPending(activeFilePath);
             finalStatus = SyncStatus.IDLE;
             console.log(`[git-sync] Successfully committed local changes to ${filename}`);
+            await autoPushToRemote();
           } else {
             finalStatus = SyncStatus.ERROR;
             errorMessage = 'Failed to commit changes';
@@ -112,6 +144,7 @@ export async function coordinateSync() {
             clearCommitPending(activeFilePath);
             finalStatus = SyncStatus.IDLE;
             console.log(`[git-sync] Successfully committed ${filename}`);
+            await autoPushToRemote();
           } else {
             finalStatus = SyncStatus.ERROR;
             errorMessage = 'Failed to commit changes';
