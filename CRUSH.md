@@ -1,12 +1,19 @@
 # CRUSH.md - Todo.txt Webapp Development Guide
 
 ## Build/Run Commands
-- Start dev server: `node node-server.js [--verbose]`
-- Start HTTPS server: `node node-server.js --secure [--verbose]`
+- Start dev server: `./start-server.sh` or `node node-server.js --verbose`
+- Start HTTPS server: `node node-server.js --secure --verbose`
 - Access: `http://localhost:5001` or `https://localhost:8443` (secure mode)
-- Docker: `docker-compose up -d` (build and run in background)
-- Docker logs: `docker-compose logs -f`
+- Docker: `docker-compose up` (with logs) or `docker-compose up -d` (background)
+- Docker logs: `docker-compose logs -f todo-webapp`
+- Docker debug: `./debug-docker.sh` (interactive debug menu)
 - Docker stop: `docker-compose down`
+
+## Debugging
+- Enable verbose logging: `DEBUG=true node node-server.js --verbose`
+- View Docker logs: `docker-compose logs -f`
+- Interactive debug: `./debug-docker.sh`
+- Test API: `./test-git-backend.sh`
 
 ## Code Style
 

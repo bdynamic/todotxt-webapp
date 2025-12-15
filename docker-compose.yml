@@ -2,9 +2,13 @@ version: '3.8'
 
 services:
   todo-webapp:
+    container_name: todowebapp
     build: .
     ports:
       - "5001:5001"
+    environment:
+      - DEBUG=true
+      - NODE_ENV=development
     volumes:
       - ./assets:/app/assets
       - ./help:/app/help
@@ -12,8 +16,6 @@ services:
       - ./data:/app/data
       - ./index.html:/app/index.html
       - /tmp/tododata:/tmp/tododata
-      - todoconfig:/root/.config/todotxt-git
+      - /tmp/todoconfig:/root/.config/todotxt-git
     restart: unless-stopped
 
-volumes:
-  todoconfig:

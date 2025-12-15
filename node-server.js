@@ -66,17 +66,33 @@ app.use((req, res, next) => {
 // Git Backend API
 const gitBackend = require('./lib/git-backend.js');
 
+console.log('='.repeat(50));
+console.log('Starting Git Backend Initialization...');
+console.log('='.repeat(50));
+
 gitBackend.initializeGitRepo().then(() => {
-  console.log('Git backend initialized');
+  console.log('='.repeat(50));
+  console.log('Git backend initialized successfully!');
+  console.log('='.repeat(50));
 }).catch(err => {
-  console.error('Failed to initialize Git backend:', err);
+  console.error('='.repeat(50));
+  console.error('FATAL: Failed to initialize Git backend!');
+  console.error('='.repeat(50));
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('='.repeat(50));
+  console.error('The server will continue but Git sync will not work.');
+  console.error('='.repeat(50));
 });
 
 app.get('/api/git/status', async (req, res) => {
+  if (verbose) console.log('[API] GET /api/git/status');
   try {
     const status = await gitBackend.getStatus();
+    if (verbose) console.log('[API] Status retrieved successfully');
     res.json({ success: true, status });
   } catch (err) {
+    console.error('[API ERROR] /api/git/status:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -110,22 +126,37 @@ app.get('/api/git/files', async (req, res) => {
 });
 
 app.get('/api/git/file/:filename', async (req, res) => {
+  const filename = req.params.filename;
+  if (verbose) console.log(`[API] GET /api/git/file/${filename}`);
   try {
-    const filename = req.params.filename;
     const result = await gitBackend.readFile(filename);
+    if (verbose) console.log(`[API] File read successfully: ${filename}`);
     res.json({ success: true, ...result });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    if (err.code === 'ENOENT') {
+      if (verbose) console.log(`[API] File not found: ${filename}`);
+      res.json({ success: true, content: null, lastCommit: null });
+    } else {
+      console.error(`[API ERROR] /api/git/file/${filename}:`, err.message);
+      res.status(500).json({ success: false, error: err.message });
+    }
   }
 });
 
 app.post('/api/git/file/:filename', async (req, res) => {
+  const filename = req.params.filename;
+  if (verbose) console.log(`[API] POST /api/git/file/${filename}`);
   try {
-    const filename = req.params.filename;
     const { content, commitMessage } = req.body;
+    if (!content) {
+      console.error('[API ERROR] No content provided for file:', filename);
+      return res.status(400).json({ success: false, error: 'Content is required' });
+    }
     const result = await gitBackend.writeFile(filename, content, commitMessage);
+    if (verbose) console.log(`[API] File written successfully: ${filename}`);
     res.json({ success: true, ...result });
   } catch (err) {
+    console.error(`[API ERROR] /api/git/file/${filename}:`, err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });

@@ -25,9 +25,13 @@ This command installs the necessary packages for the development server.
 
 2. **Start the development server:**
 ```bash
-node node-server.js [--verbose]
+./start-server.sh
 ```
-This command launches the Node.js server, which will serve the webapp.
+Or manually with verbose logging:
+```bash
+DEBUG=true node node-server.js --verbose
+```
+This command launches the Node.js server, which will serve the webapp with detailed logging.
 
 
 3. **Optional: Generate local HTTPS certificates:**
@@ -76,12 +80,24 @@ This application uses **Git** as the sync backend, replacing the previous Dropbo
 
 4. **Docker Setup:**
    ```bash
+   # Start with logs visible
+   docker-compose up
+   
+   # Or start in background
    docker-compose up -d
+   
+   # View logs
+   docker-compose logs -f todo-webapp
+   
+   # Interactive debugging
+   ./debug-docker.sh
    ```
+   
    The Docker setup automatically:
    - Mounts `/tmp/tododata` for todo files
    - Persists SSH keys in a Docker volume
    - Installs Git and SSH client
+   - Enables verbose logging by default
 
 ### Remote Repository Setup (Optional):
 
@@ -92,6 +108,26 @@ To sync with a remote Git repository (GitHub, GitLab, etc.):
 3. Copy the SSH public key from the config dialog
 4. Add the public key to your Git hosting service (Settings → SSH Keys)
 5. Click the cloud icon to sync with the remote repository
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. **Check the logs:**
+   ```bash
+   # Docker
+   docker-compose logs -f todo-webapp
+   
+   # Or use the interactive debug helper
+   ./debug-docker.sh
+   ```
+
+2. **Enable verbose logging:**
+   ```bash
+   DEBUG=true node node-server.js --verbose
+   ```
+
+3. **See the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide** for detailed solutions to common issues.
 
 ## Contributing
 
