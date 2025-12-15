@@ -15,6 +15,9 @@ For detailed instructions on how to use the application's features, please see t
 ## Usage
 
 This project aims to be deployed via Docker. The recommended way to run the application is using Docker Compose.
+- clone the project
+- Adjust the docker-compose.yaml. (tododata dir and todoconfig)
+- Start Docker
 
 ```bash
 # Start with logs visible
