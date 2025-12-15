@@ -174,6 +174,11 @@ For common issues:
 
 Contributions to the Todo.txt Webapp project are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
+## Thanks
+* Huge thanks got to azimonti for the great basis he created for this adaptation: [https://github.com/azimonti/todotxt-webapp](https://github.com/azimonti/todotxt-webapp)
+* Equal thanks go to [Crush](https://github.com/charmbracelet/crush) who made those chanes (in a reasonable time) possible (yes via Vibe Coding) 
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+   
