@@ -100,31 +100,36 @@ Below the input area, there are switches to control which tasks are displayed:
 
 ### Managing Files
 
-The application supports multiple `todo.txt` files synced via Dropbox.
+The application supports multiple `todo.txt` files with optional Git synchronization.
 
 *   **Accessing File Management:** Click the hamburger menu icon (<i class="fa-solid fa-bars"></i>) in the top-left corner to open the sidebar.
 *   **Switching Files:** Click on a file name in the sidebar list to view and edit its tasks.
 *   **Adding Files:**
     1.  Click the plus icon (<i class="fa-solid fa-plus"></i>) in the sidebar header.
     2.  Enter a name for the new file (e.g., `shopping.txt`). The `.txt` extension will be added if missing.
-    3.  Click "Add File". A new, empty file will be created locally and on Dropbox (if connected).
+    3.  Click "Add File". A new, empty file will be created locally and committed to Git (if sync enabled).
 *   **Renaming Files:**
     1.  Ensure the file you want to rename is currently active.
     2.  Click the pencil icon (<i class="fa-solid fa-pen-to-square"></i>) in the sidebar footer.
     3.  Enter the new name.
-    4.  Click "Rename File". The file will be renamed locally and on Dropbox. (Note: The default `todo.txt` cannot be renamed).
+    4.  Click "Rename File". The file will be renamed locally and committed with Git mv (if sync enabled). (Note: The default `todo.txt` cannot be renamed).
 *   **Deleting Files:**
     1.  Ensure the file you want to delete is currently active.
     2.  Click the 'X' icon (<i class="fa-solid fa-times"></i>) in the sidebar footer.
-    3.  Confirm the deletion in the pop-up window. The file will be removed locally and from Dropbox. (Note: The default `todo.txt` cannot be deleted).
+    3.  Confirm the deletion in the pop-up window. The file will be removed locally and committed with Git rm (if sync enabled). (Note: The default `todo.txt` cannot be deleted).
 *   **Importing from Disk:**
     1. Click the upload icon (<i class="fa-solid fa-upload"></i>) in the sidebar header.
     2. Select a `.txt` file from your computer. Its contents will be added to the *currently active* todo list.
 
-### Dropbox Synchronization
+### Git Synchronization
 
-*   **Connecting:** Click the Dropbox icon (<i class="fa-brands fa-dropbox"></i>) in the top-right corner to connect your Dropbox account.
-*   **Syncing:** Once connected, the app automatically syncs the *currently active* file with Dropbox. Changes made in the app are uploaded, and changes made elsewhere are downloaded. The sync status is shown next to the Dropbox icon.
-*   **Conflict Resolution:** If the file has been modified both locally and on Dropbox since the last sync, a conflict resolution dialog will appear, allowing you to choose which version to keep.
-*   **Offline:** If you are offline, changes are saved locally and will be synced when you reconnect.
-*   **Disconnecting:** Click the disconnect icon (<i class="fa-solid fa-link-slash"></i>) (which replaces the Dropbox icon when connected) to log out.
+The application can synchronize your `todo.txt` files with a Git repository for version control and backup.
+
+*   **Enabling Sync:** Click the Git icon (<i class="fa-brands fa-git-alt"></i>) in the top-right corner to enable Git synchronization.
+*   **Configuration:** Click the gear icon (<i class="fa-solid fa-gear"></i>) to configure your Git user name, email, and remote repository URL.
+*   **SSH Keys:** The app automatically generates SSH keys for secure authentication. Add the public key shown in the configuration modal to your Git hosting service.
+*   **Syncing:** Once configured, click the cloud icon (<i class="fa-solid fa-cloud"></i>) to manually sync with your remote repository. Changes are automatically committed locally on each save.
+*   **Offline:** The app works offline - changes are saved locally and committed to Git when you're back online.
+*   **Version History:** Access full version history through standard Git tools.
+
+**More Information:** For detailed guides on Git sync configuration and migration from Dropbox, see the documentation in `.crush_changedoku/`.
