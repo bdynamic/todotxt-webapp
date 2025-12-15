@@ -128,7 +128,7 @@
         </li>
       </ul>
       <h3>Managing Files</h3>
-      <p>The application supports multiple <code>todo.txt</code> files synced via Dropbox.</p>
+      <p>The application supports multiple <code>todo.txt</code> files managed using Git for version control and synchronization.</p>
       <ul>
         <li><strong>Accessing File Management:</strong> Click the hamburger menu icon (<i class="fa-solid fa-bars"></i>) in the top-left corner to open the sidebar.</li>
         <li><strong>Switching Files:</strong> Click on a file name in the sidebar list to view and edit its tasks.</li>
@@ -137,7 +137,7 @@
           <ol style="list-style-type: decimal; padding-left: 20px;">
             <li>Click the plus icon (<i class="fa-solid fa-plus"></i>) in the sidebar header.</li>
             <li>Enter a name for the new file (e.g., <code>shopping.txt</code>). The <code>.txt</code> extension will be added if missing.</li>
-            <li>Click "Add File". A new, empty file will be created locally and on Dropbox (if connected).</li>
+            <li>Click "Add File". A new, empty file will be created locally and committed to Git.</li>
           </ol>
         </li>
         <li>
@@ -146,7 +146,7 @@
             <li>Ensure the file you want to rename is currently active.</li>
             <li>Click the pencil icon (<i class="fa-solid fa-pen-to-square"></i>) in the sidebar footer.</li>
             <li>Enter the new name.</li>
-            <li>Click "Rename File". The file will be renamed locally and on Dropbox. (Note: The default <code>todo.txt</code> cannot be renamed).</li>
+            <li>Click "Rename File". The file will be renamed locally and committed to Git with a rename operation. (Note: The default <code>todo.txt</code> cannot be renamed).</li>
           </ol>
         </li>
         <li>
@@ -154,7 +154,7 @@
           <ol style="list-style-type: decimal; padding-left: 20px;">
             <li>Ensure the file you want to delete is currently active.</li>
             <li>Click the 'X' icon (<i class="fa-solid fa-times"></i>) in the sidebar footer.</li>
-            <li>Confirm the deletion in the pop-up window. The file will be removed locally and from Dropbox. (Note: The default <code>todo.txt</code> cannot be deleted).</li>
+            <li>Confirm the deletion in the pop-up window. The file will be removed locally and committed as a deletion to Git. (Note: The default <code>todo.txt</code> cannot be deleted).</li>
           </ol>
         </li>
         <li>
@@ -165,13 +165,30 @@
           </ol>
         </li>
       </ul>
-      <h3>Dropbox Synchronization</h3>
+      <h3>Git Synchronization</h3>
+      <p>The application uses Git for version control and synchronization of your todo files. All changes are automatically committed to a local Git repository and can optionally sync with a remote Git repository.</p>
       <ul>
-        <li><strong>Connecting:</strong> Click the Dropbox icon (<i class="fa-brands fa-dropbox"></i>) in the top-right corner to connect your Dropbox account.</li>
-        <li><strong>Syncing:</strong> Once connected, the app automatically syncs the <em>currently active</em> file with Dropbox. Changes made in the app are uploaded, and changes made elsewhere are downloaded. The sync status is shown next to the Dropbox icon.</li>
-        <li><strong>Conflict Resolution:</strong> If the file has been modified both locally and on Dropbox since the last sync, a conflict resolution dialog will appear, allowing you to choose which version to keep.</li>
-        <li><strong>Offline:</strong> If you are offline, changes are saved locally and will be synced when you reconnect.</li>
-        <li><strong>Disconnecting:</strong> Click the disconnect icon (<i class="fa-solid fa-link-slash"></i>) (which replaces the Dropbox icon when connected) to log out.</li>
+        <li><strong>Enabling Git Sync:</strong> Click the Git icon (<i class="fa-solid fa-code-branch"></i>) in the top-right corner to enable automatic Git commits for all changes.</li>
+        <li><strong>Configuration:</strong> Click the gear icon (<i class="fa-solid fa-gear"></i>) next to the Git icon to configure your Git settings:
+          <ul style="list-style-type: disc; padding-left: 20px;">
+            <li>Set your user name and email for commits</li>
+            <li>Configure a remote repository URL (SSH format recommended)</li>
+            <li>Copy the generated SSH public key to your Git hosting service</li>
+          </ul>
+        </li>
+        <li><strong>Automatic Sync:</strong> When Git sync is enabled, all changes are automatically committed locally. If a remote repository is configured, changes are automatically pushed after each commit.</li>
+        <li><strong>Manual Sync:</strong> Click the cloud icon (<i class="fa-solid fa-cloud"></i>) to manually sync with the remote repository (pull + push operations).</li>
+        <li><strong>Sync Status:</strong> The Git icon shows the current sync status:
+          <ul style="list-style-type: disc; padding-left: 20px;">
+            <li>Gray: Git sync disabled</li>
+            <li>Green: Sync successful</li>
+            <li>Yellow: Syncing in progress</li>
+            <li>Red: Sync error or conflicts</li>
+            <li>Blue: Pending changes to sync</li>
+          </ul>
+        </li>
+        <li><strong>Conflict Resolution:</strong> If there are conflicts during remote sync, they will be detected and you may need to resolve them manually.</li>
+        <li><strong>Pull-before-write:</strong> The app automatically pulls the latest changes from remote before making local changes to ensure synchronization.</li>
       </ul>
     </div>
   </div>
