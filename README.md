@@ -113,11 +113,32 @@ This application uses **Git** as the sync backend, replacing the previous Dropbo
 
 To sync with a remote Git repository (GitHub, GitLab, etc.):
 
-1. Create a repository on your Git hosting service
-2. In the webapp, click the gear icon and enter the SSH URL
-3. Copy the SSH public key from the config dialog
-4. Add the public key to your Git hosting service (Settings → SSH Keys)
-5. Click the cloud icon to sync with the remote repository
+1. **Get SSH Key:**
+   ```bash
+   docker exec todowebapp cat /root/.config/todotxt-git/id_ed25519.pub
+   ```
+   Or view in UI: Click gear icon → Copy SSH Public Key
+
+2. **Add SSH Key to GitHub/GitLab:**
+   - GitHub: https://github.com/settings/keys → New SSH key
+   - GitLab: https://gitlab.com/-/profile/keys → Add new key
+   - Paste the public key and save
+
+3. **Create Repository:**
+   - Create a new private repository
+   - Copy the SSH URL (e.g., `git@github.com:username/todo-files.git`)
+
+4. **Configure in Webapp:**
+   - Click gear icon (⚙️)
+   - Enter User Name, Email, and Remote Repository URL
+   - Click "Save Configuration"
+   - Remote is automatically added to Git
+
+5. **Sync:**
+   - Click cloud icon (☁️) to push/pull
+   - Your todos are now backed up!
+
+**Detailed Guide:** See [GIT_REMOTE_SETUP.md](GIT_REMOTE_SETUP.md) for complete setup instructions and troubleshooting.
 
 ## Troubleshooting
 
