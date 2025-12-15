@@ -63,6 +63,113 @@ app.use((req, res, next) => {
   next();
 });
 
+// Git Backend API
+const gitBackend = require('./lib/git-backend.js');
+
+gitBackend.initializeGitRepo().then(() => {
+  console.log('Git backend initialized');
+}).catch(err => {
+  console.error('Failed to initialize Git backend:', err);
+});
+
+app.get('/api/git/status', async (req, res) => {
+  try {
+    const status = await gitBackend.getStatus();
+    res.json({ success: true, status });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/git/config', async (req, res) => {
+  try {
+    const config = await gitBackend.getConfig();
+    const publicKey = await gitBackend.getPublicKey();
+    res.json({ success: true, config, publicKey });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/git/config', async (req, res) => {
+  try {
+    const config = await gitBackend.updateConfig(req.body);
+    res.json({ success: true, config });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/git/files', async (req, res) => {
+  try {
+    const files = await gitBackend.listTodoFiles();
+    res.json({ success: true, files });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/git/file/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const result = await gitBackend.readFile(filename);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/git/file/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const { content, commitMessage } = req.body;
+    const result = await gitBackend.writeFile(filename, content, commitMessage);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/git/rename', async (req, res) => {
+  try {
+    const { oldFilename, newFilename } = req.body;
+    const result = await gitBackend.renameFile(oldFilename, newFilename);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/git/file/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const result = await gitBackend.deleteFile(filename);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/git/history/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const limit = parseInt(req.query.limit) || 20;
+    const history = await gitBackend.getFileHistory(filename, limit);
+    res.json({ success: true, history });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/git/sync', async (req, res) => {
+  try {
+    const result = await gitBackend.syncWithRemote();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Serve static files from the current directory
 app.use(express.static('.'));
 

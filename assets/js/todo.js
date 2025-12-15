@@ -7,7 +7,7 @@ import './todo-event-handlers.js';
 import { getKnownFiles, getActiveFile, DEFAULT_FILE_PATH } from './todo-storage.js';
 import './todo-import.js';
 import { setupDropdownHandlers } from './todo-dropdowns.js';
-import { initializeDropboxSync } from './dropbox-sync.js';
+import { initializeGitSync } from './git-sync.js';
 import { logVerbose } from './todo-logging.js';
 import { setupAddFileModalListeners, setupRenameFileModalListeners, toggleTodoCompletion, startEditTodo, deleteTodoItem, updateFileSelectionUI, setupDeleteFileConfirmListener } from './todo-files.js';
 
@@ -41,10 +41,10 @@ $(document).ready(function () {
 
   logVerbose("Document ready: Initializing UI and listeners.");
   setupDropdownHandlers();
-  updateFileSelectionUI(); // Populate file dropdown initially
-  loadTodos(todoList); // Load todos for the initially active file
-  initializeDropboxSync(); // Initialize Dropbox sync system (will sync active file)
-  setupDeleteFileConfirmListener(); // Setup the listener for the delete confirmation modal's button ONCE
+  updateFileSelectionUI();
+  loadTodos(todoList);
+  initializeGitSync();
+  setupDeleteFileConfirmListener();
 
   // --- File Management Button Click Handlers (Modal Openers) ---
 

@@ -46,16 +46,52 @@ node node-server.js --secure [--verbose]
 5. **Open `index.html` in your web browser:**
 Once the server is running, you can access the webapp by navigating to the server address in your browser. Typically, this will be `http://localhost:5001` or `https://localhost:8443` if using secure mode.
 
-## Optional: Dropbox Integration
+## Git Sync Backend
 
-If you want to enable Dropbox integration, you need to configure your Dropbox App Key in `assets/js/dropbox/config.js`.
+This application uses **Git** as the sync backend, replacing the previous Dropbox integration. All todo files are stored in a Git repository with automatic version control.
 
-1. **Configure Dropbox App Key:**
-- Open `assets/js/dropbox/config.js` and update the `CLIENT_ID` variable with your actual Dropbox App Key.
-```javascript
-export const CLIENT_ID = 'YOUR_DROPBOX_APP_KEY'; // Replace with your actual Dropbox App Key
-```
-- Make sure to replace `'YOUR_DROPBOX_APP_KEY'` with your own Dropbox App Key.
+### Features:
+- **Automatic Git commits** on every save
+- **SSH key generation** - automatically creates SSH keys on first run
+- **Optional remote sync** - push/pull to GitHub, GitLab, or any Git remote
+- **Local-first** - works perfectly without any remote repository
+- **Version history** - view commit history for each file
+
+### Configuration:
+
+1. **Enable Git Sync:**
+   - Click the Git icon in the top-right corner of the webapp
+   - This enables automatic commits to the local Git repository
+
+2. **Configure Git Settings (Optional):**
+   - Click the gear icon to open Git configuration
+   - Set your name and email for commits
+   - Configure a remote repository URL (SSH format: `[email protected]:user/repo.git`)
+   - Copy the generated SSH public key and add it to your Git hosting service
+
+3. **Data Storage:**
+   - Todo files: `/tmp/tododata/` (configurable via `TODO_DATA_DIR` env var)
+   - SSH keys: `~/.config/todotxt-git/` (configurable via `TODO_CONFIG_DIR` env var)
+   - Git repository: `/tmp/tododata/.git`
+
+4. **Docker Setup:**
+   ```bash
+   docker-compose up -d
+   ```
+   The Docker setup automatically:
+   - Mounts `/tmp/tododata` for todo files
+   - Persists SSH keys in a Docker volume
+   - Installs Git and SSH client
+
+### Remote Repository Setup (Optional):
+
+To sync with a remote Git repository (GitHub, GitLab, etc.):
+
+1. Create a repository on your Git hosting service
+2. In the webapp, click the gear icon and enter the SSH URL
+3. Copy the SSH public key from the config dialog
+4. Add the public key to your Git hosting service (Settings → SSH Keys)
+5. Click the cloud icon to sync with the remote repository
 
 ## Contributing
 
