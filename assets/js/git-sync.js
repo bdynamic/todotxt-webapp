@@ -7,6 +7,7 @@ import { updateGitButton, updateSyncIndicator, SyncStatus, showGitConfigModal } 
 import { getKnownFiles, addKnownFile } from './todo-storage.js';
 import { updateFileSelectionUI } from './todo-files.js';
 import { logVerbose } from './todo-logging.js';
+import { loadTodos } from './todo-load.js';
 
 async function enableGitSync() {
   logVerbose('Enabling Git sync...');
@@ -76,6 +77,7 @@ async function triggerRemoteSync() {
       updateSyncIndicator(SyncStatus.IDLE, '', null);
       alert('Successfully synced with remote repository.');
       await discoverGitFiles();
+      loadTodos($('#todo-list'));
     } else if (result.conflicts) {
       updateSyncIndicator(SyncStatus.ERROR, 'Merge conflicts', null);
       alert(`Sync failed: Merge conflicts detected in:\n${result.conflicts.join('\n')}`);

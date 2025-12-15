@@ -48,6 +48,13 @@ export async function coordinateSync() {
     return;
   }
   
+  // If remote is configured, sync with remote first to pull any new changes
+  const hasRemote = await isRemoteConfigured();
+  if (hasRemote) {
+    logVerbose('Remote configured, syncing with remote first...');
+    await syncWithRemote();
+  }
+  
   const activeFilePath = getActiveFile();
   if (!activeFilePath) {
     console.error('Sync failed: Could not determine active file path.');
