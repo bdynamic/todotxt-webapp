@@ -40,6 +40,7 @@ export async function coordinateSync() {
   
   try {
     const hasPendingChanges = isCommitPending(activeFilePath);
+    console.log(`[git-sync] Starting sync for ${filename}, pending: ${hasPendingChanges}`);
     
     logVerbose(`Step 1: Pull latest from Git for ${filename}`);
     const gitResult = await readGitFile(filename);
@@ -55,6 +56,8 @@ export async function coordinateSync() {
       logVerbose(`File ${filename} not in Git repository. Creating initial commit.`);
       const localTodos = getTodosFromStorage();
       const localContent = localTodos.map(todo => todo.text).join('\n');
+      console.log(`[git-sync] Creating initial commit with ${localTodos.length} todos`);
+      console.log(`[git-sync] Content to commit: ${localContent.substring(0, 100)}...`);
       
       const uploadSuccess = await writeGitFile(filename, localContent, `Initial commit: ${filename}`);
       if (uploadSuccess) {
@@ -74,60 +77,50 @@ export async function coordinateSync() {
     const localTodos = getTodosFromStorage();
     const localContent = localTodos.map(todo => todo.text).join('\n');
     
+    console.log(`[git-sync] Git content (${gitContent.length} chars): ${gitContent.substring(0, 100)}...`);
+    console.log(`[git-sync] Local content (${localContent.length} chars, ${localTodos.length} todos): ${localContent.substring(0, 100)}...`);
     logVerbose(`Comparing: Git (${gitCommitHash?.substring(0, 7) || 'unknown'}) vs Local`);
     
     if (hasPendingChanges) {
-      logVerbose(`Step 2a: Pending changes detected. Checking for conflicts...`);
+      console.log(`[git-sync] Step 2a: Pending changes detected. Checking for conflicts...`);
       
       if (gitContent !== localContent) {
         const gitContentTrimmed = gitContent.trim();
         const localContentTrimmed = localContent.trim();
         
+        console.log(`[git-sync] Git vs Local differ. Git trimmed: ${gitContentTrimmed.length} chars, Local trimmed: ${localContentTrimmed.length} chars`);
+        
         if (gitContentTrimmed !== localContentTrimmed) {
-          logVerbose(`Step 2b: Git version differs from local. Merging...`);
+          console.log(`[git-sync] Step 2b: Content truly differs. NOT merging - committing local version...`);
           
-          logVerbose(`Pulling Git version into local storage first...`);
-          saveTodosFromText(gitContent);
-          
-          const mergedTodos = getTodosFromStorage();
-          const mergedContent = mergedTodos.map(todo => todo.text).join('\n');
-          
-          logVerbose(`Step 2c: Writing merged version back to Git...`);
-          const uploadSuccess = await writeGitFile(filename, mergedContent, `Merge changes for ${filename}`);
-          
-          if (uploadSuccess) {
-            clearCommitPending(activeFilePath);
-            loadTodos($('#todo-list'));
-            finalStatus = SyncStatus.IDLE;
-            logVerbose(`Successfully merged and committed ${filename}`);
-          } else {
-            finalStatus = SyncStatus.ERROR;
-            errorMessage = 'Failed to commit merged changes';
-          }
-        } else {
-          logVerbose(`Step 2b: Content matches (whitespace differences only). Committing local version...`);
+          console.log(`[git-sync] Step 2c: Writing local version to Git...`);
           const uploadSuccess = await writeGitFile(filename, localContent, `Update ${filename}`);
           
           if (uploadSuccess) {
             clearCommitPending(activeFilePath);
             finalStatus = SyncStatus.IDLE;
-            logVerbose(`Successfully committed ${filename}`);
+            console.log(`[git-sync] Successfully committed local changes to ${filename}`);
+          } else {
+            finalStatus = SyncStatus.ERROR;
+            errorMessage = 'Failed to commit changes';
+          }
+        } else {
+          console.log(`[git-sync] Step 2b: Content matches (whitespace only). Committing local version...`);
+          const uploadSuccess = await writeGitFile(filename, localContent, `Update ${filename}`);
+          
+          if (uploadSuccess) {
+            clearCommitPending(activeFilePath);
+            finalStatus = SyncStatus.IDLE;
+            console.log(`[git-sync] Successfully committed ${filename}`);
           } else {
             finalStatus = SyncStatus.ERROR;
             errorMessage = 'Failed to commit changes';
           }
         }
       } else {
-        logVerbose(`Step 2b: Git and local are identical. Committing to clear pending flag...`);
-        const uploadSuccess = await writeGitFile(filename, localContent, `Sync ${filename}`);
-        
-        if (uploadSuccess) {
-          clearCommitPending(activeFilePath);
-          finalStatus = SyncStatus.IDLE;
-        } else {
-          finalStatus = SyncStatus.ERROR;
-          errorMessage = 'Failed to sync';
-        }
+        console.log(`[git-sync] Step 2b: Git and local are identical. Clearing pending flag only.`);
+        clearCommitPending(activeFilePath);
+        finalStatus = SyncStatus.IDLE;
       }
     } else {
       logVerbose(`Step 2a: No pending local changes.`);

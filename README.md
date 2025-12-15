@@ -137,7 +137,10 @@ If you encounter issues:
    DEBUG=true node node-server.js --verbose
    ```
 
-3. **See the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide** for detailed solutions to common issues.
+3. **Common issues:**
+   - **Items disappearing?** See [DEBUG_GIT_SYNC.md](DEBUG_GIT_SYNC.md)
+   - **Git sync not working?** See [FIXES_SUMMARY.md](FIXES_SUMMARY.md)
+   - **Other issues?** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ## Contributing
 

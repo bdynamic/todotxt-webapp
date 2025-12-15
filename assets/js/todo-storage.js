@@ -256,17 +256,16 @@ export function saveTodosToStorage(todoObjects) {
     return;
   }
 
+  console.log(`[todo-storage] Saving ${todoObjects.length} todos to localStorage for ${activeFilePath}`);
   localStorage.setItem(storageKey, JSON.stringify(todoObjects));
   const saveTimestamp = new Date().toISOString();
-  // Store the current timestamp for the specific file
   localStorage.setItem(timestampKey, saveTimestamp);
-  // console.log(`Saved todos and timestamp for ${activeFilePath}`);
 
-  // Dispatch an event indicating data has changed for the active file
+  console.log(`[todo-storage] Dispatching localDataChanged event for ${activeFilePath}`);
   document.dispatchEvent(new CustomEvent('localDataChanged', {
     detail: {
       filePath: activeFilePath,
-      timestamp: saveTimestamp // Include timestamp for potential use by listener
+      timestamp: saveTimestamp
     }
   }));
   logVerbose(`Dispatched localDataChanged event for ${activeFilePath}`);
@@ -315,14 +314,16 @@ export function getLastSyncTime(filePath) {
 // --- Todo Modification Functions (Operating on Active File) ---
 
 export function addTodoToStorage(item) {
-  // getTodosFromStorage and saveTodosToStorage now implicitly use the active file
-  const todos = getTodosFromStorage(); // Gets todos for the active file
+  const todos = getTodosFromStorage();
+  const itemText = typeof item === 'string' ? item : item.toString();
   const newTodoObject = {
     id: generateUniqueId(),
-    text: item.toString() // Assuming item is a TodoTxtItem object or similar
+    text: itemText
   };
+  console.log('[todo-storage] Adding todo:', itemText);
   todos.push(newTodoObject);
-  saveTodosToStorage(todos); // Saves todos for the active file and dispatches event
+  saveTodosToStorage(todos);
+  console.log('[todo-storage] Todo added and saved. Total todos:', todos.length);
 }
 
 export function updateTodoInStorage(idToUpdate, newItem) {

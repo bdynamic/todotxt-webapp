@@ -24,6 +24,14 @@ function formatDateForTodoTxt(dateString) {
 
 
 $(document).ready(function () {
+  
+  todoInput.on('keypress', function(e) {
+    if (e.which === 13) {
+      e.preventDefault();
+      addButton.click();
+    }
+  });
+  
   addButton.click(function () {
     const editingId = addButton.data('editingId'); // Get the ID being edited, if any
 
