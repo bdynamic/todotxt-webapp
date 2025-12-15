@@ -29,8 +29,9 @@ docker-compose up -d
 # View logs
 docker-compose logs -f todo-webapp
 ```
-
 Access the webapp at `http://localhost:5001`.
+
+**Warning:** This Project has no user Managment and authentication. Use it only in your Intranet, via VPN, etc. Don't open ports to the Internet!
 
 ## Git Sync Backend
 
