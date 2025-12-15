@@ -1,6 +1,6 @@
 'use strict';
 
-import { getActiveFile, getTodosFromStorage } from './todo-storage.js';
+import { getActiveFile, getTodosFromStorage, saveTodosToStorage } from './todo-storage.js';
 import { readGitFile, writeGitFile, isGitEnabled } from './git/api.js';
 import { saveTodosFromText, loadTodos } from './todo-load.js';
 import { updateSyncIndicator, SyncStatus } from './git/ui.js';
@@ -39,52 +39,113 @@ export async function coordinateSync() {
   let errorMessage = '';
   
   try {
-    const localTodos = getTodosFromStorage();
-    const localContent = localTodos.map(todo => todo.text).join('\n');
+    const hasPendingChanges = isCommitPending(activeFilePath);
     
+    logVerbose(`Step 1: Pull latest from Git for ${filename}`);
     const gitResult = await readGitFile(filename);
     
     if (!gitResult.success) {
       console.error(`Failed to read file from Git: ${filename}`);
       finalStatus = SyncStatus.ERROR;
       errorMessage = 'Failed to read from Git';
-    } else if (gitResult.content === null) {
+      return;
+    }
+    
+    if (gitResult.content === null) {
       logVerbose(`File ${filename} not in Git repository. Creating initial commit.`);
+      const localTodos = getTodosFromStorage();
+      const localContent = localTodos.map(todo => todo.text).join('\n');
+      
       const uploadSuccess = await writeGitFile(filename, localContent, `Initial commit: ${filename}`);
       if (uploadSuccess) {
         clearCommitPending(activeFilePath);
         finalStatus = SyncStatus.IDLE;
+        logVerbose(`Successfully created initial commit for ${filename}`);
       } else {
         finalStatus = SyncStatus.ERROR;
         errorMessage = 'Failed initial commit';
       }
-    } else {
-      const gitContent = gitResult.content;
+      return;
+    }
+    
+    const gitContent = gitResult.content;
+    const gitCommitHash = gitResult.lastCommit?.hash;
+    
+    const localTodos = getTodosFromStorage();
+    const localContent = localTodos.map(todo => todo.text).join('\n');
+    
+    logVerbose(`Comparing: Git (${gitCommitHash?.substring(0, 7) || 'unknown'}) vs Local`);
+    
+    if (hasPendingChanges) {
+      logVerbose(`Step 2a: Pending changes detected. Checking for conflicts...`);
       
-      if (gitContent === localContent) {
-        logVerbose(`File ${filename} is in sync with Git.`);
-        clearCommitPending(activeFilePath);
-        finalStatus = SyncStatus.IDLE;
-      } else {
-        if (isCommitPending(activeFilePath)) {
-          logVerbose(`Pending changes detected for ${filename}. Committing local version.`);
+      if (gitContent !== localContent) {
+        const gitContentTrimmed = gitContent.trim();
+        const localContentTrimmed = localContent.trim();
+        
+        if (gitContentTrimmed !== localContentTrimmed) {
+          logVerbose(`Step 2b: Git version differs from local. Merging...`);
+          
+          logVerbose(`Pulling Git version into local storage first...`);
+          saveTodosFromText(gitContent);
+          
+          const mergedTodos = getTodosFromStorage();
+          const mergedContent = mergedTodos.map(todo => todo.text).join('\n');
+          
+          logVerbose(`Step 2c: Writing merged version back to Git...`);
+          const uploadSuccess = await writeGitFile(filename, mergedContent, `Merge changes for ${filename}`);
+          
+          if (uploadSuccess) {
+            clearCommitPending(activeFilePath);
+            loadTodos($('#todo-list'));
+            finalStatus = SyncStatus.IDLE;
+            logVerbose(`Successfully merged and committed ${filename}`);
+          } else {
+            finalStatus = SyncStatus.ERROR;
+            errorMessage = 'Failed to commit merged changes';
+          }
+        } else {
+          logVerbose(`Step 2b: Content matches (whitespace differences only). Committing local version...`);
           const uploadSuccess = await writeGitFile(filename, localContent, `Update ${filename}`);
+          
           if (uploadSuccess) {
             clearCommitPending(activeFilePath);
             finalStatus = SyncStatus.IDLE;
+            logVerbose(`Successfully committed ${filename}`);
           } else {
             finalStatus = SyncStatus.ERROR;
             errorMessage = 'Failed to commit changes';
           }
-        } else {
-          logVerbose(`Git version differs from local for ${filename}. Pulling Git version.`);
-          saveTodosFromText(gitContent);
-          loadTodos($('#todo-list'));
+        }
+      } else {
+        logVerbose(`Step 2b: Git and local are identical. Committing to clear pending flag...`);
+        const uploadSuccess = await writeGitFile(filename, localContent, `Sync ${filename}`);
+        
+        if (uploadSuccess) {
           clearCommitPending(activeFilePath);
           finalStatus = SyncStatus.IDLE;
+        } else {
+          finalStatus = SyncStatus.ERROR;
+          errorMessage = 'Failed to sync';
         }
       }
+    } else {
+      logVerbose(`Step 2a: No pending local changes.`);
+      
+      if (gitContent !== localContent) {
+        logVerbose(`Step 2b: Git version is newer. Pulling into local storage...`);
+        saveTodosFromText(gitContent);
+        loadTodos($('#todo-list'));
+        clearCommitPending(activeFilePath);
+        finalStatus = SyncStatus.IDLE;
+        logVerbose(`Successfully pulled latest version of ${filename}`);
+      } else {
+        logVerbose(`Step 2b: Already in sync with Git.`);
+        clearCommitPending(activeFilePath);
+        finalStatus = SyncStatus.IDLE;
+      }
     }
+    
   } catch (error) {
     console.error(`Error during coordinateSync for ${activeFilePath}:`, error);
     finalStatus = SyncStatus.ERROR;
@@ -99,11 +160,14 @@ function handleLocalDataChange(event) {
   const activeFilePath = getActiveFile();
   
   if (filePath === activeFilePath) {
-    logVerbose(`Local data changed for active file (${filePath}). Debouncing sync (${SYNC_DEBOUNCE_DELAY}ms)...`);
+    logVerbose(`Local data changed for active file (${filePath}). Setting pending flag and debouncing sync...`);
+    
+    setCommitPending(activeFilePath);
     
     if (!navigator.onLine) {
-      console.warn(`Offline: Setting commit pending flag for ${activeFilePath} due to local change.`);
-      setCommitPending(activeFilePath);
+      console.warn(`Offline: Changes will be committed when back online.`);
+      updateSyncIndicator(SyncStatus.PENDING, '', activeFilePath);
+      return;
     }
     
     clearTimeout(syncDebounceTimer);

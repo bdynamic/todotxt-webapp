@@ -108,20 +108,36 @@ export function setupAddFileModalListeners() {
 
 
     try {
-      // Dynamically import Dropbox API function if needed
-      const { uploadTodosToDropbox: apiUpload } = await import('./dropbox/api.js');
       const originalActiveFile = getActiveFile();
-      setActiveFile(newFilePath); // Temporarily set active to save
-      saveTodosToStorage([]); // Save an empty array for the new file
-      setActiveFile(originalActiveFile); // Restore original active file
-      await apiUpload(newFilePath); // Upload the empty file to Dropbox
-      logVerbose(`Empty file ${newFilePath} created on Dropbox.`);
-      addKnownFile(cleanName, newFilePath); // Add to local known files
-      setActiveFile(newFilePath); // Set the new file as active
-      updateFileSelectionUI(); // Update dropdown
-      loadTodos(todoList); // Load (empty) todos for the new file
+      setActiveFile(newFilePath);
+      saveTodosToStorage([]);
+      setActiveFile(originalActiveFile);
+      
+      try {
+        const { writeGitFile, isGitEnabled } = await import('./git/api.js');
+        if (isGitEnabled()) {
+          await writeGitFile(cleanName, '', `Create new file: ${cleanName}`);
+          logVerbose(`Empty file ${newFilePath} created in Git.`);
+        }
+      } catch (gitError) {
+        logVerbose(`Git sync not available or failed: ${gitError.message}`);
+      }
+      
+      addKnownFile(cleanName, newFilePath);
+      setActiveFile(newFilePath);
+      updateFileSelectionUI();
+      loadTodos(todoList);
       logVerbose(`File "${cleanName}" created successfully.`);
       showNotification(`File "${cleanName}" created successfully.`, 'success');
+      
+      try {
+        const gitSyncModule = await import('./git-sync-coordinator.js');
+        if (gitSyncModule && gitSyncModule.coordinateSync) {
+          await gitSyncModule.coordinateSync();
+        }
+      } catch (syncError) {
+        logVerbose(`Could not trigger sync: ${syncError.message}`);
+      }
     } catch (error) {
       console.error(`Error adding file ${newFilePath}:`, error);
       showNotification(`Failed to add file "${cleanName}". Check console for details.`, 'alert');
@@ -197,29 +213,24 @@ export function setupRenameFileModalListeners() {
         updateFileSelectionUI(); // Reflects the new active file name
         showNotification(`File renamed to "${cleanNewName}".`, 'success');
 
-        // 3. Attempt Dropbox rename *after* local success
         try {
-          const { renameDropboxFile: apiRename } = await import('./dropbox/api.js');
-          logVerbose(`Attempting Dropbox rename for ${oldFilePath} to ${newFilePath}...`);
-          // Corrected variable name from newPath to newFilePath
-          const dropboxRenameSuccess = await apiRename(oldFilePath, newFilePath);
+          const { renameGitFile, isGitEnabled } = await import('./git/api.js');
+          if (isGitEnabled()) {
+            logVerbose(`Attempting Git rename for ${oldFilePath} to ${newFilePath}...`);
+            const oldFilename = oldFilePath.substring(1);
+            const newFilename = newFilePath.substring(1);
+            const gitRenameSuccess = await renameGitFile(oldFilename, newFilename);
 
-          if (dropboxRenameSuccess) {
-            logVerbose(`Dropbox rename successful.`);
-            // Optional: Update sync status for the new file path?
-            // Maybe trigger a sync check for the new path?
-          } else {
-            logVerbose(`Dropbox rename failed or was not possible.`);
-            // Notify user that Dropbox rename failed but local succeeded
-            showNotification(`Note: Could not rename file on Dropbox. Local file is now "${cleanNewName}".`, 'warning');
-            // Consider triggering an upload under the new name to ensure content exists on Dropbox
-            // const { uploadTodosToDropbox } = await import('./dropbox/api.js');
-            // uploadTodosToDropbox(newPath).catch(e => console.error("Upload after failed rename failed:", e));
+            if (gitRenameSuccess) {
+              logVerbose(`Git rename successful.`);
+            } else {
+              logVerbose(`Git rename failed or was not possible.`);
+              showNotification(`Note: Could not rename file in Git. Local file is now "${cleanNewName}".`, 'warning');
+            }
           }
-        } catch (dropboxError) {
-          console.error(`Error during Dropbox rename attempt:`, dropboxError);
-          logVerbose(`Dropbox rename attempt failed.`);
-          showNotification(`Error trying to rename file on Dropbox. Local file is now "${cleanNewName}".`, 'warning');
+        } catch (gitError) {
+          console.error(`Error during Git rename attempt:`, gitError);
+          logVerbose(`Git rename attempt failed: ${gitError.message}`);
         }
 
       } else {
@@ -318,18 +329,24 @@ export function updateFileSelectionUI() {
     const link = $('<a class="nav-link" href="#"></a>') // Use nav-link class
       .text(file.name)
       .data('path', file.path) // Store path in data attribute
-      .click(function(e) {
+      .click(async function(e) {
         e.preventDefault();
         const selectedPath = $(this).data('path');
         if (selectedPath !== getActiveFile()) {
           logVerbose(`Switching active file to: ${selectedPath}`);
           setActiveFile(selectedPath);
-          // Reload todos for the new active file
-          loadTodos(todoList); // todoList needs to be accessible here
-          // Update the UI again to reflect the change (button text)
+          loadTodos(todoList);
           updateFileSelectionUI();
-          // Optionally trigger sync for the new file?
-          // Consider calling initializeDropboxSync() or a specific sync function
+          
+          try {
+            const gitSyncModule = await import('./git-sync-coordinator.js');
+            if (gitSyncModule && gitSyncModule.coordinateSync) {
+              logVerbose('Triggering sync for newly selected file...');
+              await gitSyncModule.coordinateSync();
+            }
+          } catch (err) {
+            console.error('Could not trigger sync on file switch:', err);
+          }
         }
       });
 
@@ -376,41 +393,37 @@ export function setupDeleteFileConfirmListener() {
     logVerbose(`Confirmed deletion for file: ${fileNameToDelete} (${filePathToDelete})`);
 
     // --- Modified Deletion Logic (Prioritize Local Removal) ---
-    let dropboxDeleteAttempted = false;
-    let dropboxDeleteSuccess = false; // Assume failure initially
+    let gitDeleteAttempted = false;
+    let gitDeleteSuccess = false;
 
     try {
-      // 1. Attempt to delete on Dropbox (but don't block local deletion if it fails)
       try {
-        const { deleteDropboxFile: apiDelete } = await import('./dropbox/api.js');
-        logVerbose(`Attempting Dropbox deletion for ${filePathToDelete}...`);
-        dropboxDeleteAttempted = true;
-        dropboxDeleteSuccess = await apiDelete(filePathToDelete); // Store success/failure
-        if (dropboxDeleteSuccess) {
-          logVerbose(`Dropbox deletion successful for ${filePathToDelete}.`);
-        } else {
-          logVerbose(`Dropbox deletion failed or was not possible for ${filePathToDelete}. Proceeding with local deletion.`);
+        const { deleteGitFile, isGitEnabled } = await import('./git/api.js');
+        if (isGitEnabled()) {
+          logVerbose(`Attempting Git deletion for ${filePathToDelete}...`);
+          gitDeleteAttempted = true;
+          const filename = filePathToDelete.substring(1);
+          gitDeleteSuccess = await deleteGitFile(filename);
+          if (gitDeleteSuccess) {
+            logVerbose(`Git deletion successful for ${filePathToDelete}.`);
+          } else {
+            logVerbose(`Git deletion failed for ${filePathToDelete}. Proceeding with local deletion.`);
+          }
         }
-      } catch (dropboxError) {
-        console.error(`Error during Dropbox delete attempt for ${filePathToDelete}:`, dropboxError);
-        logVerbose(`Dropbox delete attempt failed for ${filePathToDelete}. Proceeding with local deletion.`);
+      } catch (gitError) {
+        console.error(`Error during Git delete attempt for ${filePathToDelete}:`, gitError);
+        logVerbose(`Git delete attempt failed for ${filePathToDelete}: ${gitError.message}`);
       }
 
-      // 2. Always remove from local storage regardless of Dropbox status
       logVerbose(`Proceeding with local removal for ${filePathToDelete}`);
-      removeKnownFile(filePathToDelete); // This also handles switching active file if needed
+      removeKnownFile(filePathToDelete);
 
-      // 3. Update UI
       updateFileSelectionUI();
+      loadTodos(todoList);
 
-      // 4. Load todos for the new active file (should be default after deletion)
-      loadTodos(todoList); // todoList needs to be accessible
-
-      // 5. Show success notification (focused on local removal)
       showNotification(`File "${fileNameToDelete}" removed.`, 'success');
-      // Add a warning if Dropbox failed but was attempted
-      if (dropboxDeleteAttempted && !dropboxDeleteSuccess) {
-        showNotification(`Note: Could not remove "${fileNameToDelete}" from Dropbox.`, 'warning');
+      if (gitDeleteAttempted && !gitDeleteSuccess) {
+        showNotification(`Note: Could not remove "${fileNameToDelete}" from Git.`, 'warning');
       }
 
     } catch (error) { // Catch errors during local removal or UI update

@@ -55,11 +55,21 @@ Once the server is running, you can access the webapp by navigating to the serve
 This application uses **Git** as the sync backend, replacing the previous Dropbox integration. All todo files are stored in a Git repository with automatic version control.
 
 ### Features:
-- **Automatic Git commits** on every save
+- **Pull-before-write workflow** - always pulls latest before committing changes
+- **Automatic Git commits** on every save (debounced 3 seconds)
+- **Intelligent merging** - handles concurrent changes from multiple sources
 - **SSH key generation** - automatically creates SSH keys on first run
 - **Optional remote sync** - push/pull to GitHub, GitLab, or any Git remote
 - **Local-first** - works perfectly without any remote repository
 - **Version history** - view commit history for each file
+
+### How It Works:
+1. When you make a change, it's marked as "pending"
+2. After 3 seconds (debounce), the sync process starts:
+   - **Step 1:** Pull latest version from Git
+   - **Step 2:** Merge with local changes if needed
+   - **Step 3:** Commit to Git
+3. When switching files, the latest version is pulled automatically
 
 ### Configuration:
 
