@@ -14,41 +14,20 @@ For detailed instructions on how to use the application's features, please see t
 
 ## Usage
 
-To use the webapp for development:
-
-1. **Install Node.js dependencies:**
+This project aims to be deployed via Docker. The recommended way to run the application is using Docker Compose.
 
 ```bash
-npm install
-```
-This command installs the necessary packages for the development server.
+# Start with logs visible
+docker-compose up
 
-2. **Start the development server:**
-```bash
-./start-server.sh
-```
-Or manually with verbose logging:
-```bash
-DEBUG=true node node-server.js --verbose
-```
-This command launches the Node.js server, which will serve the webapp with detailed logging.
+# Or start in background
+docker-compose up -d
 
-
-3. **Optional: Generate local HTTPS certificates:**
-To run the server with HTTPS (required for testing certain PWA features like installability more robustly or features requiring a secure context beyond `localhost`), and assuming `mkcert` is installed, generate the certificate files:
-```bash
-# Run this in the project's root directory
-mkcert localhost 127.0.0.1 ::1
-```
-This generates `localhost+N.pem` and `localhost+N-key.pem` files in the current directory, which the secure server command will automatically use. Only needed to do this once unless the certificates expire the directory is cleared. It is necessary to run `mkcert -install` once beforehand if you haven't already configured the local CA.
-
-4. **start secure server**
-```bash
-node node-server.js --secure [--verbose]
+# View logs
+docker-compose logs -f todo-webapp
 ```
 
-5. **Open `index.html` in your web browser:**
-Once the server is running, you can access the webapp by navigating to the server address in your browser. Typically, this will be `http://localhost:5001` or `https://localhost:8443` if using secure mode.
+Access the webapp at `http://localhost:5001`.
 
 ## Git Sync Backend
 
@@ -83,7 +62,7 @@ This application uses **Git** as the sync backend, replacing the previous Dropbo
 2. **Configure Git Settings (Optional):**
    - Click the gear icon to open Git configuration
    - Set your name and email for commits
-   - Configure a remote repository URL (SSH format: `[email protected]:user/repo.git`)
+   - Configure a remote repository URL (SSH format: `git@github.com:user/repo.git`)
    - Copy the generated SSH public key and add it to your Git hosting service
 
 3. **Data Storage:**
@@ -146,28 +125,50 @@ To sync with a remote Git repository (GitHub, GitLab, etc.):
 
 **Detailed Guide:** See [GIT_REMOTE_SETUP.md](GIT_REMOTE_SETUP.md) for complete setup instructions and troubleshooting.
 
+To sync with a remote Git repository (GitHub, GitLab, etc.):
+
+1. **Get SSH Key:**
+   ```bash
+   docker exec todowebapp cat /root/.config/todotxt-git/id_ed25519.pub
+   ```
+   Or view in UI: Click gear icon → Copy SSH Public Key
+
+2. **Add SSH Key to GitHub/GitLab:**
+   - GitHub: https://github.com/settings/keys → New SSH key
+   - GitLab: https://gitlab.com/-/profile/keys → Add new key
+   - Paste the public key and save
+
+3. **Create Repository:**
+   - Create a new private repository
+   - Copy the SSH URL (e.g., `git@github.com:username/todo-files.git`)
+
+4. **Configure in Webapp:**
+   - Click gear icon (⚙️)
+   - Enter User Name, Email, and Remote Repository URL
+   - Click "Save Configuration"
+   - Remote is automatically added to Git
+
+5. **Automatic Sync:**
+   - After setup, all commits **automatically push** to remote
+   - No need to click cloud icon (it's for manual sync/pull)
+   - Your todos are continuously backed up!
+
+**Manual Sync:** Click cloud icon (☁️) to force push/pull
+
+**Detailed Guide:** See [GIT_REMOTE_SETUP.md](GIT_REMOTE_SETUP.md) for complete setup instructions and troubleshooting.
+
 ## Troubleshooting
 
-If you encounter issues:
+If you encounter issues, run the interactive debug helper:
 
-1. **Check the logs:**
-   ```bash
-   # Docker
-   docker-compose logs -f todo-webapp
-   
-   # Or use the interactive debug helper
-   ./debug-docker.sh
-   ```
+```bash
+./debug-docker.sh
+```
 
-2. **Enable verbose logging:**
-   ```bash
-   DEBUG=true node node-server.js --verbose
-   ```
-
-3. **Common issues:**
-   - **Items disappearing?** See [DEBUG_GIT_SYNC.md](DEBUG_GIT_SYNC.md)
-   - **Git sync not working?** See [FIXES_SUMMARY.md](FIXES_SUMMARY.md)
-   - **Other issues?** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+For common issues:
+- **Items disappearing?** See [DEBUG_GIT_SYNC.md](DEBUG_GIT_SYNC.md)
+- **Git sync not working?** See [FIXES_SUMMARY.md](FIXES_SUMMARY.md)
+- **Other issues?** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ## Contributing
 
