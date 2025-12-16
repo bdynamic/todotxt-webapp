@@ -4,4 +4,4 @@ tmp/
 .crush/
 .dockerignore
 docker-compose.yml
-
+*~
