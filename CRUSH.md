@@ -58,3 +58,6 @@
 - SSH keys location: `~/.config/todotxt-git/` (or `$TODO_CONFIG_DIR`)
 - Auto-generates SSH keys if missing
 - Local commits on every save, optional remote sync
+
+## Change Documentation
+- Change documentation directory:  `.crush_changedoku/`
