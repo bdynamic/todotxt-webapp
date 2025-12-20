@@ -107,6 +107,9 @@ test_api() {
 }
 
 rebuild_restart() {
+    mkdir /tmp/tododata
+    mkdir /tmp/todoconfig
+
     echo "Stopping containers..."
     docker-compose down
     echo ""

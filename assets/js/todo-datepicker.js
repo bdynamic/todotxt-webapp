@@ -6,7 +6,6 @@ $(document).ready(function() {
     $(this).datepicker({
       weekStart: 1, // Start week on Monday
       format: 'dd.mm.yyyy', // European date format
-      todayHighlight: true, // Underline current date
       templates: {
         leftArrow: '<i class="fa-solid fa-angle-left"></i>',
         rightArrow: '<i class="fa-solid fa-angle-right"></i>'
