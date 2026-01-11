@@ -10,11 +10,11 @@ import { toggleTodoCompletion, startEditTodo, deleteTodoItem } from './todo.js';
 // Helper function to format date from MM/DD/YYYY to YYYY-MM-DD
 function formatDateForTodoTxt(dateString) {
   if (!dateString) return null;
-  const parts = dateString.split('/');
+  const parts = dateString.split('.');
   if (parts.length === 3) {
-    // Assuming MM/DD/YYYY
-    const [month, day, year] = parts;
-    // Ensure two digits for month and day (though datepicker usually handles this)
+    // Assuming DD.MM.YYYY
+    const [day, month, year] = parts;
+    // Ensure two digits for month and day
     const formattedMonth = month.padStart(2, '0');
     const formattedDay = day.padStart(2, '0');
     return `${year}-${formattedMonth}-${formattedDay}`;
@@ -43,58 +43,41 @@ $(document).ready(function () {
         // 1. Delete the old item
         removeTodoFromStorage(editingId);
 
-        // 2. Parse the input and update the item object based on UI controls
-        const item = new jsTodoTxt.Item(newTextFromInput); // Parse the core text
-
-        // Get values from UI controls
+        // 2. Build the full todo text string based on current UI controls
         const priority = prioritySelect.val();
         const project = projectSelect.val();
         const context = contextSelect.val();
         const createdDateVal = $('#createdDate').val();
         const dueDateVal = $('#dueDate').val();
+        const todoBodyText = newTextFromInput; // The trimmed text from the input field
 
-        // Update Priority
+        let finalTodoText = '';
+
         if (priority) {
-          item.setPriority(priority);
-        } else {
-          // If dropdown is cleared, remove priority ONLY if it wasn't part of the original text input
-          // (We rely on the initial parsing of newTextFromInput for priorities typed directly)
-          // A simpler approach for now: if dropdown is empty, clear priority.
-          // This might remove a priority typed in the text if the dropdown is then cleared.
-          item.clearPriority();
+          finalTodoText += `(${priority}) `;
         }
 
-        // Update Project: Add project from dropdown if one is selected.
-        // The jsTodoTxt library handles ensuring it's not duplicated if already present.
-        if (project) {
-          item.addProject(project);
-        }
-
-        // Update Context: Add context from dropdown if one is selected.
-        // The jsTodoTxt library handles ensuring it's not duplicated if already present.
-        if (context) {
-          item.addContext(context);
-        }
-
-        // Update Creation Date
         const formattedCreatedDate = formatDateForTodoTxt(createdDateVal);
         if (formattedCreatedDate) {
-          item.setCreated(formattedCreatedDate);
-        } else {
-          item.clearCreated(); // Clear if date picker is empty
+          finalTodoText += `${formattedCreatedDate} `;
         }
 
-        // Update Due Date
+        finalTodoText += todoBodyText;
+
+        if (project) {
+          finalTodoText += ` +${project}`;
+        }
+        if (context) {
+          finalTodoText += ` @${context}`;
+        }
+
         const formattedDueDate = formatDateForTodoTxt(dueDateVal);
         if (formattedDueDate) {
-          item.setExtension('due', formattedDueDate);
-        } else {
-          item.removeExtension('due'); // Remove 'due' extension if date picker is empty
+          finalTodoText += ` due:${formattedDueDate}`;
         }
 
-        // 3. Get the final string and add to storage
-        const finalTodoText = item.toString();
-        addTodoToStorage(finalTodoText); // Pass the final string
+        // 3. Add the new (edited) todo to storage
+        addTodoToStorage(finalTodoText.trim()); // Pass the new string
 
         // 4. Reset UI
         addButton.text('Add Todo').removeData('editingId'); // Remove the editing ID

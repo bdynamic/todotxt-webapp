@@ -95,8 +95,8 @@ Below the input area, there are switches to control which tasks are displayed:
     *   **ON (Default):** Displays all tasks, including completed ones (marked with 'x').
     *   **OFF:** Hides completed tasks.
 *   **Threshold > Today:**
-    *   **ON (Default):** Displays all tasks, regardless of their threshold date (`t:YYYY-MM-DD`).
-    *   **OFF:** Hides tasks whose threshold date (`t:YYYY-MM-DD`) is in the future. This is useful for hiding tasks that aren't relevant until a later date.
+    *   **ON:** Displays all tasks, regardless of their threshold date (`t:YYYY-MM-DD`).
+    *   **OFF (Default):** Hides tasks whose threshold date (`t:YYYY-MM-DD`) is in the future. This is useful for hiding tasks that aren't relevant until a later date.
 
 ### Managing Files
 

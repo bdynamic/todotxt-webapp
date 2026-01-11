@@ -108,7 +108,7 @@ export function loadTodos(todoList) {
 
   // --- Filtering based on switches ---
   const showCompleted = localStorage.getItem(SHOW_COMPLETED_KEY) === null ? true : localStorage.getItem(SHOW_COMPLETED_KEY) === 'true';
-  const showFutureThreshold = localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === null ? true : localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === 'true';
+  const showFutureThreshold = localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === null ? false : localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === 'true';
   const todayDateStr = getTodayDateString();
 
   const filteredItems = itemsForSorting.filter(sortedItem => {
@@ -122,7 +122,14 @@ export function loadTodos(todoList) {
     // Filter 2: Hide future threshold if switch is off
     if (!showFutureThreshold) {
       const thresholdExtension = item.extensions().find(ext => ext.key === 't');
-      const thresholdValue = thresholdExtension ? thresholdExtension.value : undefined;
+      let thresholdValue = thresholdExtension ? thresholdExtension.value : undefined;
+
+      // If no threshold date, check due date
+      if (!thresholdValue) {
+        const dueExtension = item.extensions().find(ext => ext.key === 'due');
+        thresholdValue = dueExtension ? dueExtension.value : undefined;
+      }
+
       if (thresholdValue && thresholdValue > todayDateStr) {
         return false;
       }

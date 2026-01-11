@@ -43,8 +43,8 @@ $(document).ready(function() {
 
   // --- Switch 2: Threshold > Today ---
   if (switch2.length) {
-    // Load initial state from localStorage, default to true (checked)
-    const showFutureThreshold = localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === null ? true : localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === 'true';
+    // Load initial state from localStorage, default to false (unchecked)
+    const showFutureThreshold = localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === null ? false : localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === 'true';
     switch2.prop('checked', showFutureThreshold);
     updateSwitchLabel(switch2); // Update label based on loaded state
 
