@@ -1,7 +1,6 @@
 /* global jsTodoTxt, ClipboardJS */
 'use strict';
 
-import { projectSelect, contextSelect, todoInput, addButton, prioritySelect, filterButton, todoList } from './todo.js';
 import { addTodoToStorage, removeTodoFromStorage, getTodosFromStorage } from './todo-storage.js';
 import { loadTodos } from './todo-load.js';
 import { addTodoToList } from './todo-ui.js';
@@ -24,6 +23,13 @@ function formatDateForTodoTxt(dateString) {
 
 
 $(document).ready(function () {
+  const todoInput = $('#todoInput');
+  const addButton = $('#addButton');
+  const prioritySelect = $('#prioritySelect');
+  const projectSelect = $('#projectSelect');
+  const contextSelect = $('#contextSelect');
+  const filterButton = $('#filterButton');
+  const todoList = $('#todo-list');
   
   todoInput.on('keypress', function(e) {
     if (e.which === 13) {
