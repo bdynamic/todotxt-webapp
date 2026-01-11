@@ -203,6 +203,9 @@ function handleLocalDataChange(event) {
       return;
     }
     
+    // Optimistic UI: Show yellow immediately when changes occur
+    updateSyncIndicator(SyncStatus.PENDING, 'Changes pending...', activeFilePath);
+    
     clearTimeout(syncDebounceTimer);
     syncDebounceTimer = setTimeout(() => {
       logVerbose(`Debounce timer finished for ${activeFilePath}. Triggering coordinateSync.`);

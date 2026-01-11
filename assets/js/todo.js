@@ -9,7 +9,7 @@ import './todo-import.js';
 import { setupDropdownHandlers } from './todo-dropdowns.js';
 import { initializeGitSync } from './git-sync.js';
 import { logVerbose } from './todo-logging.js';
-import { setupAddFileModalListeners, setupRenameFileModalListeners, toggleTodoCompletion, startEditTodo, deleteTodoItem, updateFileSelectionUI, setupDeleteFileConfirmListener } from './todo-files.js';
+import { setupAddFileModalListeners, setupRenameFileModalListeners, updateFileSelectionUI, setupDeleteFileConfirmListener } from './todo-files.js';
 
 // DOM Elements remain accessible globally via $
 const todoInput = $('#todoInput');
@@ -34,7 +34,7 @@ let addFileModalInstance = null;
 let renameFileModalInstance = null;
 // Delete modal instance is handled within its own logic
 
-export { todoList, toggleTodoCompletion, startEditTodo, deleteTodoItem, projectSelect, contextSelect, todoInput, addButton, prioritySelect, filterButton, copyAllButton };
+export { todoList, projectSelect, contextSelect, todoInput, addButton, prioritySelect, filterButton, copyAllButton };
 
 $(document).ready(function () {
   // Modal instances are initialized when first opened below

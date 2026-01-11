@@ -1,10 +1,7 @@
 'use strict';
 
 import { loadTodos } from './todo-load.js';
-
-// Define localStorage keys
-const SHOW_COMPLETED_KEY = 'todoWebAppShowCompleted';
-const SHOW_FUTURE_THRESHOLD_KEY = 'todoWebAppShowFutureThreshold';
+import { SHOW_COMPLETED_KEY, SHOW_FUTURE_THRESHOLD_KEY } from './todo-utils.js';
 
 $(document).ready(function() {
   // Initialize specific switches on page load

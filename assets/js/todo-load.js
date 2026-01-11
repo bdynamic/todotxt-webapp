@@ -3,25 +3,11 @@
 
 // Import generateUniqueId if needed, or import saveTodosToStorage which uses it
 import { getTodosFromStorage, saveTodosToStorage } from './todo-storage.js';
-import { toggleTodoCompletion, startEditTodo, deleteTodoItem  } from './todo.js';
+import { toggleTodoCompletion, startEditTodo, deleteTodoItem  } from './todo-actions.js';
 import { addTodoToList } from './todo-ui.js';
 import { updateDropdowns } from './todo-dropdowns.js';
 import { logVerbose } from './todo-logging.js';
-
-// Constants for localStorage keys (mirroring todo-switch.js)
-const SHOW_COMPLETED_KEY = 'todoWebAppShowCompleted';
-const SHOW_FUTURE_THRESHOLD_KEY = 'todoWebAppShowFutureThreshold';
-
-// Helper function to get today's date as YYYY-MM-DD
-function getTodayDateString() {
-  logVerbose('Entering getTodayDateString function');
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-  const day = String(today.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
+import { SHOW_COMPLETED_KEY, SHOW_FUTURE_THRESHOLD_KEY, getTodayDateString } from './todo-utils.js';
 
 export function loadTodos(todoList) {
   // getTodosFromStorage now returns array of {id, text} or empty array
