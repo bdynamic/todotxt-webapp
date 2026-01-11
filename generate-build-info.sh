@@ -6,8 +6,7 @@ echo "Starting build process..."
 echo "Pulling latest changes from Git..."
 git pull
 if [ $? -ne 0 ]; then
-    echo "Error: Git pull failed."
-    exit 1
+    echo "Warning: Git pull failed. Proceeding with local version..."
 fi
 
 # 2. Generate Build Info
