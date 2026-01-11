@@ -1,5 +1,16 @@
 #!/bin/bash
 
+echo "Starting build process..."
+
+# 1. Pull latest changes
+echo "Pulling latest changes from Git..."
+git pull
+if [ $? -ne 0 ]; then
+    echo "Error: Git pull failed."
+    exit 1
+fi
+
+# 2. Generate Build Info
 # Get git hash (short)
 GIT_HASH=$(git rev-parse --short HEAD)
 
@@ -29,3 +40,20 @@ cat <<EOF > "$VERSION_FILE"
 EOF
 
 echo "Updated $VERSION_FILE with Hash: $GIT_HASH, Date: $BUILD_DATE"
+
+# 3. Rebuild and Restart Docker Containers
+echo "Rebuilding and restarting Docker containers..."
+# Check if docker-compose command exists, otherwise try docker compose
+if command -v docker-compose &> /dev/null; then
+    docker-compose up -d --build
+else
+    docker compose up -d --build
+fi
+
+if [ $? -eq 0 ]; then
+    echo "Build complete and containers restarted successfully."
+else
+    echo "Error: Docker build/restart failed."
+    exit 1
+fi
+
