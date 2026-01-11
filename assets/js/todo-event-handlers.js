@@ -5,7 +5,7 @@ import { projectSelect, contextSelect, todoInput, addButton, prioritySelect, fil
 import { addTodoToStorage, removeTodoFromStorage, getTodosFromStorage } from './todo-storage.js';
 import { loadTodos } from './todo-load.js';
 import { addTodoToList } from './todo-ui.js';
-import { toggleTodoCompletion, startEditTodo, deleteTodoItem } from './todo.js';
+import { toggleTodoCompletion, startEditTodo, deleteTodoItem } from './todo-actions.js';
 
 // Helper function to format date from MM/DD/YYYY to YYYY-MM-DD
 function formatDateForTodoTxt(dateString) {
