@@ -46,6 +46,20 @@ $(document).ready(function () {
   initializeGitSync();
   setupDeleteFileConfirmListener();
 
+  // Load Version Info
+  $.getJSON('/data/json/version.json', function(data) {
+    if (data) {
+      const versionString = `v${data.version} (${data.gitHash}) - Built: ${data.buildDate}`;
+      const appVersionContainer = $('#appVersionContainer');
+      if (appVersionContainer.length) {
+        appVersionContainer.text(versionString);
+      }
+      console.log(`Todo.txt Webapp ${versionString}`);
+    }
+  }).fail(function() {
+    console.warn("Could not load version info.");
+  });
+
   // --- File Management Button Click Handlers (Modal Openers) ---
 
   // Add New File Button Click Handler
