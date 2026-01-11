@@ -46,8 +46,8 @@ $(document).ready(function () {
   initializeGitSync();
   setupDeleteFileConfirmListener();
 
-  // Load Version Info
-  $.getJSON('/data/json/version.json', function(data) {
+  // Load Version Info with cache busting
+  $.getJSON('/data/json/version.json?t=' + new Date().getTime(), function(data) {
     if (data) {
       const versionString = `v${data.version} (${data.gitHash}) - Built: ${data.buildDate}`;
       const appVersionContainer = $('#appVersionContainer');
