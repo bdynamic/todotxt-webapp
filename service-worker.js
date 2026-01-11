@@ -15,7 +15,7 @@ const assetsToCache = [
   '/assets/js/lib/bootstrap-5.3.2.min.js.map',
   '/assets/js/lib/bootstrap-datepicker-1.10.0.min.js.map',
   '/assets/js/lib/bootstrap-datepicker-1.10.0.min.js',
-  '/assets/js/lib/dropbox-sdk-10.34.0.min.js',
+
   '/assets/js/lib/clipboard-2.0.11.min.js',
   '/assets/js/lib/clipboard-2.0.11.min.js.map',
   '/assets/js/lib/fontawesome-6.7.2.min.js',
@@ -43,13 +43,7 @@ const assetsToCache = [
   '/assets/js/todo-ui.js',
   '/assets/js/todo.js',
 
-  '/assets/js/dropbox-sync.js',
-  '/assets/js/todo-sync-coordinator.js',
-  '/assets/js/dropbox/config.js',
-  '/assets/js/dropbox/ui.js',
-  '/assets/js/dropbox/auth.js',
-  '/assets/js/dropbox/offline.js',
-  '/assets/js/dropbox/api.js',
+
 
   '/img/icons/todotxt.ico',
   '/img/icons/todotxt-32x32.png',

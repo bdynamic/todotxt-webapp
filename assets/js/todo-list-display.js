@@ -108,7 +108,7 @@ export function loadTodos(todoList) {
 
   // --- Filtering based on switches ---
   const showCompleted = localStorage.getItem(SHOW_COMPLETED_KEY) === null ? true : localStorage.getItem(SHOW_COMPLETED_KEY) === 'true';
-  const showFutureThreshold = localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === null ? true : localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === 'true';
+  const showFutureThreshold = localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === null ? false : localStorage.getItem(SHOW_FUTURE_THRESHOLD_KEY) === 'true';
   const todayDateStr = getTodayDateString();
 
   const filteredItems = itemsForSorting.filter(sortedItem => {
