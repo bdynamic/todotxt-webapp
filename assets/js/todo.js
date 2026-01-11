@@ -53,11 +53,13 @@ $(document).ready(function () {
       const appVersionContainer = $('#appVersionContainer');
       if (appVersionContainer.length) {
         appVersionContainer.text(versionString);
+        appVersionContainer.show(); // Force visibility
       }
       console.log(`Todo.txt Webapp ${versionString}`);
     }
-  }).fail(function() {
-    console.warn("Could not load version info.");
+  }).fail(function(jqxhr, textStatus, error) {
+    console.warn("Could not load version info:", textStatus, error);
+    $('#appVersionContainer').text("Version info unavailable").show();
   });
 
   // --- File Management Button Click Handlers (Modal Openers) ---
