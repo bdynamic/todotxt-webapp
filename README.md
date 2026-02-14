@@ -1,8 +1,8 @@
 # Todo.txt Webapp
 
-A Progressive Web Application (PWA) for managing todo.txt tasks list.
+A Progressive Web Application (PWA) for managing todo.txt tasks list. Designed to connect to an existing todo.txt Git repository and provide a web interface for managing your tasks.
 
-This webapp allows to manage tasks using the [todo.txt format](https://github.com/todotxt/todo.txt). It provides a simple web interface to view, add, and manage todo items.
+This webapp allows to manage tasks using the [todo.txt format](https://github.com/todotxt/todo.txt). It provides a simple web interface to view, add, and manage todo items. Point it at your existing todo.txt repo and start editing right away.
 
 This project utilizes the [jsTodoTxt](https://github.com/jmhobbs/jsTodoTxt) library by jmhobbs for parsing and manipulating todo.txt format. We appreciate the work of jmhobbs and the contributors to jsTodoTxt.
 
@@ -16,7 +16,7 @@ For detailed instructions on how to use the application's features, please see t
 
 This project aims to be deployed via Docker. The recommended way to run the application is using Docker Compose.
 - clone the project
-- Adjust the docker-compose.yaml. (tododata dir and todoconfig)
+- Adjust the docker-compose.yml (tododata dir and todoconfig)
 - Start Docker
 
 ```bash
@@ -75,20 +75,7 @@ This application uses **Git** as the sync backend, replacing the previous Dropbo
    - Git repository: `/tmp/tododata/.git`
 
 4. **Docker Setup:**
-   ```bash
-   # Start with logs visible
-   docker-compose up
-   
-   # Or start in background
-   docker-compose up -d
-   
-   # View logs
-   docker-compose logs -f todo-webapp
-   
-   # Interactive debugging
-   ./debug-docker.sh
-   ```
-   
+
    The Docker setup automatically:
    - Mounts `/tmp/tododata` for todo files
    - Persists SSH keys in a Docker volume
@@ -110,8 +97,8 @@ To sync with a remote Git repository (GitHub, GitLab, etc.):
    - GitLab: https://gitlab.com/-/profile/keys → Add new key
    - Paste the public key and save
 
-3. **Create Repository:**
-   - Create a new private repository
+3. **Repository:**
+   - Use an existing repository or create a new private one
    - Copy the SSH URL (e.g., `git@github.com:username/todo-files.git`)
 
 4. **Configure in Webapp:**
@@ -119,6 +106,7 @@ To sync with a remote Git repository (GitHub, GitLab, etc.):
    - Enter User Name, Email, and Remote Repository URL
    - Click "Save Configuration"
    - Remote is automatically added to Git
+   - On first sync, existing remote content is pulled automatically
 
 5. **Automatic Sync:**
    - After setup, all commits **automatically push** to remote
@@ -126,53 +114,14 @@ To sync with a remote Git repository (GitHub, GitLab, etc.):
    - Your todos are continuously backed up!
 
 **Manual Sync:** Click cloud icon (☁️) to force push/pull
-
-**Detailed Guide:** See [GIT_REMOTE_SETUP.md](GIT_REMOTE_SETUP.md) for complete setup instructions and troubleshooting.
-
-To sync with a remote Git repository (GitHub, GitLab, etc.):
-
-1. **Get SSH Key:**
-   ```bash
-   docker exec todowebapp cat /root/.config/todotxt-git/id_ed25519.pub
-   ```
-   Or view in UI: Click gear icon → Copy SSH Public Key
-
-2. **Add SSH Key to GitHub/GitLab:**
-   - GitHub: https://github.com/settings/keys → New SSH key
-   - GitLab: https://gitlab.com/-/profile/keys → Add new key
-   - Paste the public key and save
-
-3. **Create Repository:**
-   - Create a new private repository
-   - Copy the SSH URL (e.g., `git@github.com:username/todo-files.git`)
-
-4. **Configure in Webapp:**
-   - Click gear icon (⚙️)
-   - Enter User Name, Email, and Remote Repository URL
-   - Click "Save Configuration"
-   - Remote is automatically added to Git
-
-5. **Automatic Sync:**
-   - After setup, all commits **automatically push** to remote
-   - No need to click cloud icon (it's for manual sync/pull)
-   - Your todos are continuously backed up!
-
-**Manual Sync:** Click cloud icon (☁️) to force push/pull
-
-**Detailed Guide:** See [GIT_REMOTE_SETUP.md](GIT_REMOTE_SETUP.md) for complete setup instructions and troubleshooting.
 
 ## Troubleshooting
 
-If you encounter issues, run the interactive debug helper:
+Check the Docker logs for detailed output:
 
 ```bash
-./debug-docker.sh
+docker-compose logs -f todo-webapp
 ```
-
-For common issues:
-- **Items disappearing?** See [DEBUG_GIT_SYNC.md](DEBUG_GIT_SYNC.md)
-- **Git sync not working?** See [FIXES_SUMMARY.md](FIXES_SUMMARY.md)
-- **Other issues?** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ## Contributing
 
