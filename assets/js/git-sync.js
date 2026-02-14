@@ -157,5 +157,3 @@ async function initializeGitSync() {
 }
 
 export { initializeGitSync };
-
-document.addEventListener('DOMContentLoaded', initializeGitSync);
