@@ -61,6 +61,7 @@ Key API routes:
 - `GET/POST /api/git/file/:filename` — read/write todo files (writes auto-commit)
 - `GET /api/git/files` — list .txt files
 - `POST /api/git/sync` — manual push/pull with remote
+- `POST /api/git/reset` — hard reset local repo to remote branch
 - `GET/POST /api/git/config` — get/update Git settings
 - `GET /api/git/history/:filename` — commit history
 

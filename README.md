@@ -123,6 +123,8 @@ Check the Docker logs for detailed output:
 docker-compose logs -f todo-webapp
 ```
 
+**Git Reset:** If you run into merge conflicts or other Git sync problems, open the Git config dialog (gear icon) and click the red **Git Reset** button. This runs `git reset --hard` to the remote branch, discarding all local changes and replacing them with the remote version. The page will reload automatically with the fresh state.
+
 ## Contributing
 
 Contributions to the Todo.txt Webapp project are welcome. For major changes, please open an issue first to discuss what you would like to change.

@@ -154,6 +154,19 @@ export async function getFileHistory(filename, limit = 20) {
   }
 }
 
+export async function resetGitToRemote() {
+  try {
+    const result = await apiCall('/reset', { method: 'POST' });
+    return result;
+  } catch (err) {
+    console.error('Git reset failed:', err);
+    return {
+      success: false,
+      message: err.message
+    };
+  }
+}
+
 export async function syncWithRemote() {
   if (!gitEnabled) {
     return { success: false, message: 'Git sync not enabled' };

@@ -2,7 +2,7 @@
 
 import { initializeSyncCoordinator } from './git-sync-coordinator.js';
 import { initializeOfflineHandling } from './git/offline.js';
-import { isGitEnabled, setGitEnabled, getGitConfig, updateGitConfig, listGitFiles, syncWithRemote } from './git/api.js';
+import { isGitEnabled, setGitEnabled, getGitConfig, updateGitConfig, listGitFiles, syncWithRemote, resetGitToRemote } from './git/api.js';
 import { updateGitButton, updateSyncIndicator, SyncStatus, showGitConfigModal } from './git/ui.js';
 import { getKnownFiles, addKnownFile } from './todo-storage.js';
 import { updateFileSelectionUI } from './todo-files.js';
@@ -67,6 +67,34 @@ async function showConfigDialog() {
   }
 }
 
+async function triggerGitReset() {
+  if (!confirm('This will discard ALL local changes and reset to the remote version. Are you sure?')) {
+    return;
+  }
+
+  logVerbose('Triggering git reset --hard to remote...');
+  updateSyncIndicator(SyncStatus.SYNCING, 'Resetting to remote...', null);
+
+  try {
+    const result = await resetGitToRemote();
+    if (result.success) {
+      alert('Git reset successful: ' + result.message + '\nPage will reload.');
+      const gitEnabled = localStorage.getItem('gitSyncEnabled');
+      localStorage.clear();
+      if (gitEnabled) localStorage.setItem('gitSyncEnabled', gitEnabled);
+      window.location.reload();
+      return;
+    } else {
+      updateSyncIndicator(SyncStatus.ERROR, result.message, null);
+      alert('Git reset failed: ' + result.message);
+    }
+  } catch (error) {
+    console.error('Git reset error:', error);
+    updateSyncIndicator(SyncStatus.ERROR, error.message, null);
+    alert('Git reset failed: ' + error.message);
+  }
+}
+
 async function triggerRemoteSync() {
   logVerbose('Triggering manual remote sync...');
   updateSyncIndicator(SyncStatus.SYNCING, 'Syncing with remote...', null);
@@ -118,6 +146,11 @@ async function initializeGitSync() {
   const gitRemoteSyncButton = document.getElementById('gitRemoteSyncButton');
   if (gitRemoteSyncButton) {
     gitRemoteSyncButton.addEventListener('click', triggerRemoteSync);
+  }
+
+  const gitResetButton = document.getElementById('gitResetButton');
+  if (gitResetButton) {
+    gitResetButton.addEventListener('click', triggerGitReset);
   }
   
   logVerbose('Git Sync System Initialized.');

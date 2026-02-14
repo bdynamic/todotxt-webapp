@@ -192,6 +192,17 @@ app.get('/api/git/history/:filename', async (req, res) => {
   }
 });
 
+app.post('/api/git/reset', async (req, res) => {
+  if (verbose) console.log('[API] POST /api/git/reset');
+  try {
+    const result = await gitBackend.resetToRemote();
+    res.json(result);
+  } catch (err) {
+    console.error('[API ERROR] /api/git/reset:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.post('/api/git/sync', async (req, res) => {
   try {
     const result = await gitBackend.syncWithRemote();
