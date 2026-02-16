@@ -12,6 +12,7 @@ Todo.txt Webapp — a PWA for managing todo.txt task lists with Git-based sync. 
 * Keep this file to a rough length of 500 token
 * For detailed description generate them in subdir devdocs and just link them here
 * Don't be excessive with generating documentation.
+* For additional documentation create it in devdocs/ and link here
 
 ## Development Approach
 
