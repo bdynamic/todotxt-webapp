@@ -276,11 +276,32 @@ export function startEditTodo(listItem) {
   const itemText = listItem.find('span').text();
   const item = new jsTodoTxt.Item(itemText);
 
-  todoInput.val(itemText); // Populate input with current text
+  // Strip priority, projects, contexts, dates, and extensions from text
+  // so they don't get duplicated when the save handler re-adds them from dropdowns
+  let bodyText = itemText;
+  // Remove priority
+  bodyText = bodyText.replace(/^\([A-Z]\)\s*/, '');
+  // Remove creation date (YYYY-MM-DD at start)
+  bodyText = bodyText.replace(/^\d{4}-\d{2}-\d{2}\s*/, '');
+  // Remove projects
+  item.projects().forEach(p => {
+    bodyText = bodyText.replace(new RegExp('\\s*\\+' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '');
+  });
+  // Remove contexts
+  item.contexts().forEach(c => {
+    bodyText = bodyText.replace(new RegExp('\\s*@' + c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '');
+  });
+  // Remove due:date extension
+  bodyText = bodyText.replace(/\s*due:\S+/g, '');
+  bodyText = bodyText.trim();
+
+  todoInput.val(bodyText); // Populate input with body text only
   addButton.text('Save Edit').data('editingId', itemId); // Change button text and store ID
   todoInput.focus(); // Focus the input
 
   prioritySelect.val(item.priority() || ''); // Select existing priority
+  const priority = item.priority() || '';
+  $('#priorityDropdownButton').text(priority ? `(${priority})` : 'Priority');
   const project = item.projects()[0] || '';
   const context = item.contexts()[0] || '';
 
@@ -309,10 +330,30 @@ export function startEditTodo(listItem) {
 
 export function deleteTodoItem(listItem) {
   const itemId = listItem.data('id');
+  const itemText = listItem.find('span').text();
   logVerbose(`deleteTodoItem called for item ID: ${itemId}`);
-  removeTodoFromStorage(itemId); // Remove from storage
-  listItem.remove(); // Remove from the UI
-  // No need to reload here, item is just removed.
+
+  // Show confirmation modal
+  $('#todoTextToDelete').text(itemText);
+  const modalEl = document.getElementById('deleteTodoModalConfirm');
+  if (modalEl) {
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    // Remove any previous handler and attach a new one
+    $('#confirmDeleteTodoButton').off('click.deletetodo').on('click.deletetodo', function() {
+      removeTodoFromStorage(itemId);
+      listItem.remove();
+      modal.hide();
+      logVerbose(`Todo item ${itemId} deleted after confirmation.`);
+    });
+
+    modal.show();
+  } else {
+    // Fallback if modal element missing
+    console.error("Delete todo confirmation modal (#deleteTodoModalConfirm) not found!");
+    removeTodoFromStorage(itemId);
+    listItem.remove();
+  }
 }
 
 // --- File Selection UI ---
