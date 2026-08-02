@@ -26,6 +26,8 @@ Switching the container to run as `dockeruser` (uid 1000, matching this host's d
 
 Once the container actually ran as uid 1000, the bind-mounted `TODO_DATA_DIR` (`/tmp/tododata`, host dir previously written by a root-run container) surfaced two more errors: git's "detected dubious ownership" guard (fixed programmatically - `git-backend.js` now runs `git config --global --add safe.directory <TODO_DATA_DIR>` on startup) and a real `EACCES` on writing `todo.txt` (host-side permission problem, not fixable from the image - requires `chown -R 1000:1000` on the host's bind-mounted data/config directories).
 
+The `safe.directory` config alone didn't cover `POST /api/git/reset` (dubious-ownership error kept recurring there specifically, likely because it was hit before a rebuild/chown fully landed). Per explicit user request, `resetToRemote()` in `git-backend.js` was rewritten to wipe `TODO_DATA_DIR` entirely and re-clone from the remote's default branch, instead of `fetch` + `reset --hard` against a guessed `main`/`master`. Same end state as before (working tree matches remote, local changes discarded - reset was already destructive), but every file ends up freshly owned by whichever uid the process runs as, and it no longer needs the target branch to be named main or master.
+
 ## Rollback point
 
 Work done starting from commit `958cc68605074c0eee2dbd490e7fef534abf241e` (2026-08-02 08:49:07 +0000), clean tree, 1 commit ahead of `origin/master`. Revert to this commit to undo the version-footer feature.
