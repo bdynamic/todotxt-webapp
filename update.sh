@@ -213,22 +213,43 @@ else
     exit 1
 fi
 
-# Check state after pull
-log "Checking for updates after pull..."
+# Rebuild any services that use a local build context, so source
+# changes (e.g. from a previous git pull) are picked up even if this
+# run's "git pull" itself was a no-op. Docker layer caching keeps
+# no-op rebuilds cheap.
+for service in "${SERVICES[@]}"; do
+    if [ "${CURRENT_DIGESTS[$service]}" = "BUILD_CONTEXT" ]; then
+        log "Building service (build context): $service"
+        if ! $DOCKER_COMPOSE build "$service" 2>&1; then
+            log_error "Error building $service"
+            exit 1
+        fi
+    fi
+done
+
+# Check state after pull/build
+log "Checking for updates after pull/build..."
 for service in "${SERVICES[@]}"; do
     new_digest=$(get_current_image_digest "$service")
     running="${RUNNING_DIGESTS[$service]}"
     old_available="${CURRENT_DIGESTS[$service]}"
-    
-    if [ "$new_digest" != "$old_available" ] && [ "$new_digest" != "BUILD_CONTEXT" ]; then
+
+    if [ "$new_digest" = "BUILD_CONTEXT" ]; then
+        # No explicit image name in compose config; resolve the actual
+        # built image id via `compose images` instead.
+        new_digest=$(docker inspect --format='{{.Id}}' "$($DOCKER_COMPOSE images -q "$service" 2>/dev/null)" 2>/dev/null || echo "UNKNOWN")
+    fi
+
+    if [ "$new_digest" != "$old_available" ] && [ "$old_available" != "BUILD_CONTEXT" ]; then
         log_success "Service $service: new image pulled!"
         log "  Old: ${old_available:0:20}..."
         log "  New: ${new_digest:0:20}..."
         NEEDS_RESTART=true
     fi
-    
-    # Also check if running differs from new
-    if [ "$running" != "NOT_RUNNING" ] && [ "$new_digest" != "BUILD_CONTEXT" ] && [ "$running" != "$new_digest" ]; then
+
+    # Also check if running differs from new (covers rebuilt build-context images)
+    if [ "$running" != "NOT_RUNNING" ] && [ "$running" != "$new_digest" ]; then
+        log_warning "Service $service: running image differs from current/built image"
         NEEDS_RESTART=true
     fi
 done
