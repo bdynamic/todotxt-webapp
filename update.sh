@@ -96,6 +96,16 @@ if [ -d ".git" ] || git rev-parse --git-dir &>/dev/null; then
             if [ "$BEFORE_HASH" != "$AFTER_HASH" ]; then
                 log_success "Git updated: ${BEFORE_HASH:0:12} -> ${AFTER_HASH:0:12}"
                 GIT_UPDATED=true
+
+                # This script may itself have changed. Bash buffers the
+                # script by file offset as it runs, so continuing here
+                # can execute a stale mix of old/new content. Re-exec a
+                # fresh process on the updated file instead.
+                if [ -z "${UPDATE_SH_REEXECUTED:-}" ]; then
+                    log "update.sh changed - re-executing updated script..."
+                    export UPDATE_SH_REEXECUTED=1
+                    exec "$SCRIPT_PATH" "$@"
+                fi
             else
                 log "Git repo is already up-to-date"
             fi
