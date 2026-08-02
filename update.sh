@@ -299,3 +299,11 @@ if [ -t 0 ]; then  # Only ask if running interactively
         log_success "Cleanup completed"
     fi
 fi
+
+# Report which git commit the current source (and thus the image, for
+# build-context services) is based on
+if git rev-parse HEAD &>/dev/null; then
+    CURRENT_COMMIT=$(git rev-parse HEAD)
+    CURRENT_COMMIT_SUBJECT=$(git log -1 --pretty=%s 2>/dev/null || echo "")
+    log_success "Image based on commit: ${CURRENT_COMMIT:0:12} - ${CURRENT_COMMIT_SUBJECT}"
+fi
