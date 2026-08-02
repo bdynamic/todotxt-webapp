@@ -1,0 +1,10 @@
+node_modules/
+tmp/
+*.pem
+.gitignore
+.crush/
+screenshots/
+MIGRATION.md
+GIT_BACKEND_SUMMARY.md
+help.md
+todo.md

@@ -65,6 +65,7 @@ app.use((req, res, next) => {
 
 // Git Backend API
 const gitBackend = require('./lib/git-backend.js');
+const appVersion = require('./lib/app-version.js');
 
 console.log('='.repeat(50));
 console.log('Starting Git Backend Initialization...');
@@ -210,6 +211,10 @@ app.post('/api/git/sync', async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
+});
+
+app.get('/api/version', (req, res) => {
+  res.json(appVersion.versionInfo);
 });
 
 // Serve static files from the current directory

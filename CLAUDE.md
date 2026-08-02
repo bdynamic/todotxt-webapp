@@ -119,6 +119,7 @@ PWA caching for offline support. Cache key: `todotxt-cache-v1-0-2`.
 - Ports: 5001 (HTTP), 8443 (HTTPS optional)
 - Source volumes mounted in dev for live reload of frontend assets
 - Data at `/tmp/tododata`, config at `/tmp/todoconfig` on host
+- Multi-stage build captures source commit info at build time (`GET /api/version`, footer in UI) without shipping `.git` in the final image — see [devdocs/version-footer.md](devdocs/version-footer.md)
 
 ## Key Libraries
 

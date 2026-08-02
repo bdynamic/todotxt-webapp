@@ -250,3 +250,8 @@ body {
 .file-list-sidebar .nav-link:hover {
   background-color: #f8f9fa; /* Hover effect */
 }
+
+#appVersionFooter {
+  color: #ccc;
+  padding: 0.5rem 0 1rem;
+}
