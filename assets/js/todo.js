@@ -43,6 +43,7 @@ $(document).ready(function () {
   setupDropdownHandlers();
   updateFileSelectionUI();
   loadTodos(todoList);
+  todoInput.trigger('focus');
   initializeGitSync();
   setupDeleteFileConfirmListener();
 
