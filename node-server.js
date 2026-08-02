@@ -67,6 +67,8 @@ app.use((req, res, next) => {
 const gitBackend = require('./lib/git-backend.js');
 const appVersion = require('./lib/app-version.js');
 
+console.log(`App version: ${appVersion.versionInfo.shortCommit || 'unknown'} (${appVersion.versionInfo.date || 'unknown'})`);
+
 console.log('='.repeat(50));
 console.log('Starting Git Backend Initialization...');
 console.log('='.repeat(50));

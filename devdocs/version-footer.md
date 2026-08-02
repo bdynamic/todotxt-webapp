@@ -18,6 +18,10 @@
 
 `.dockerignore` was listed in `.gitignore` (never tracked), same as `docker-compose.yml`. Unlike `docker-compose.yml` (has a tracked `_sample` counterpart for host-specific values), `.dockerignore` has no such counterpart and no host-specific content — its exclusion looked like a copy-paste leftover, not intentional. Removed from `.gitignore` and un-`.git/`-excluded it, so the fix (needed for the `gitinfo` build stage to see `.git`) actually reaches other deployments via `update.sh`'s `git pull`. If this was intentional for some other reason, revert `.gitignore` and re-add `.git/` to `.dockerignore` — but then the version footer will only ever show `unknown` in Docker deployments.
 
+## Unrelated deploy bug surfaced while testing this feature
+
+Deployment host runs the container as `user: dockeruser` (non-root, custom compose not in this repo). The Dockerfile never created that account, so the rebuild triggered by this feature failed at container start ("unable to find user dockeruser: no matching entries in passwd file") — old container/image kept running, which is why the footer stayed blank and `/version.json` 404'd (old image had neither). Fixed by adding `RUN adduser -D -u 1000 -h /home/dockeruser dockeruser` + `chown -R` to the Dockerfile. Also dropped the hardcoded `ENV TODO_CONFIG_DIR=/root/.config/todotxt-git` (contradicted the `~/.config/todotxt-git` default documented in `CLAUDE.md` and would have pointed config/SSH-key storage at `/root` — unwritable and wrong — regardless of which user actually ran the container); `lib/git-backend.js` already derives the correct path from `$HOME`.
+
 ## Rollback point
 
 Work done starting from commit `958cc68605074c0eee2dbd490e7fef534abf241e` (2026-08-02 08:49:07 +0000), clean tree, 1 commit ahead of `origin/master`. Revert to this commit to undo the version-footer feature.
