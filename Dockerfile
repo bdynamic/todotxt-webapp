@@ -14,8 +14,9 @@ RUN apk add --no-cache git openssh-client
 
 # So `user: dockeruser` (or any uid/gid override) in docker-compose has a
 # passwd entry to resolve against - Docker refuses to start the container
-# otherwise ("unable to find user dockeruser").
-RUN adduser -D -u 1000 -h /home/dockeruser dockeruser
+# otherwise ("unable to find user dockeruser"). The base image already
+# ships a "node" user at uid 1000, so rename it rather than collide with it.
+RUN deluser node 2>/dev/null; delgroup node 2>/dev/null; adduser -D -u 1000 -h /home/dockeruser dockeruser
 
 WORKDIR /app
 
