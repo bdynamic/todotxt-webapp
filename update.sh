@@ -305,7 +305,7 @@ if [ -t 0 ]; then  # Only ask if running interactively
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         log "Removing unused images..."
-        docker image prune -f
+        docker image prune -f | grep -i "^Total reclaimed space"
         log_success "Cleanup completed"
     fi
 fi
