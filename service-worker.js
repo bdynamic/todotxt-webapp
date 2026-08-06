@@ -1,4 +1,4 @@
-const CACHE_NAME = 'todotxt-cache-v1-0-5';
+const CACHE_NAME = 'todotxt-cache-v1-0-6';
 const CACHE_AT_ONCE = false;
 const assetsToCache = [
   '/index.html',
@@ -36,7 +36,6 @@ const assetsToCache = [
   '/assets/js/todo-event-handlers.js',
   '/assets/js/todo-files.js',
   '/assets/js/todo-import.js',
-  '/assets/js/todo-list-display.js',
   '/assets/js/todo-load.js',
   '/assets/js/todo-logging.js',
   '/assets/js/todo-storage.js',

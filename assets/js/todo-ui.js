@@ -26,6 +26,7 @@ export function applyItemStyles(listItem, item) {
 // Helper to create the main text span
 export function createTodoSpan(item) {
   return $('<span></span>')
+    .addClass('todo-text')
     .text(item.toString())
     .css('cursor', 'pointer')
     .attr('title', 'Click to copy')
