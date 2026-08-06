@@ -143,6 +143,12 @@ body {
   }
 }
 
+@media (width <= 768px) {
+  #syncStatusIndicator .sync-status-text {
+    display: none;
+  }
+}
+
 .btn-primary {
   font-weight: 800;
   --bs-btn-color:#FFF;
