@@ -69,7 +69,7 @@ export function updateSyncIndicator(status, message = '', filePath = null) {
     break;
   }
   
-  indicator.innerHTML = `<i class="${iconClass}"></i> <span class="sync-status-text">${text}</span>`;
+  indicator.innerHTML = `<i class="${iconClass}"></i> ${text}`;
   indicator.title = title;
 }
 
