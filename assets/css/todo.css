@@ -80,6 +80,11 @@ body {
   padding: 0.5rem 0rem;
   border: none;
   border-bottom: 1px solid #555;
+  background-color: #2C2C2C;
+}
+
+.list-group-item:nth-child(even) {
+  background-color: #353535;
 }
 
 .list-group-item:last-child {

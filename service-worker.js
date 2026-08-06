@@ -1,4 +1,4 @@
-const CACHE_NAME = 'todotxt-cache-v1-0-6';
+const CACHE_NAME = 'todotxt-cache-v1-0-7';
 const CACHE_AT_ONCE = false;
 const assetsToCache = [
   '/index.html',

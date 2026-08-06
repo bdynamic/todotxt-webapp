@@ -68,7 +68,7 @@ Key API routes:
 
 ### Frontend (`index.html` + `assets/js/`)
 
-Single-page app. All JS loaded via `<script>` tags (not bundled). Key modules:
+Single-page app. All JS loaded via `<script>` tags (not bundled). UI/behavior requirements not obvious from code: see [devdocs/requirements.md](devdocs/requirements.md). Key modules:
 
 | File | Role |
 |------|------|
@@ -76,9 +76,8 @@ Single-page app. All JS loaded via `<script>` tags (not bundled). Key modules:
 | `todo-storage.js` | Core CRUD: add, edit, delete, complete todos |
 | `todo-files.js` | Multi-file management (create, rename, delete, switch) |
 | `todo-load.js` | Loads/parses todo.txt content from backend |
-| `todo-list-display.js` | Renders the todo list to DOM |
 | `todo-event-handlers.js` | UI event bindings (clicks, keypresses) |
-| `todo-ui.js` | UI helpers (badges, dropdowns, sidebar) |
+| `todo-ui.js` | Renders todo list items to DOM, UI helpers (badges, dropdowns, sidebar) |
 | `todo-switch.js` | File switching logic |
 | `git-sync.js` | Git sync orchestrator |
 | `git-sync-coordinator.js` | Debounced sync (3s), conflict resolution |

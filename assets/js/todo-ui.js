@@ -41,7 +41,6 @@ export function createTodoSpan(item) {
 export function addTodoToList(sortedItemData, item, todoList, toggleTodoCompletion, startEditTodo, deleteTodoItem) {
   const listItem = $('<li></li>')
     .addClass('list-group-item')
-    .css('background-color', '#2C2C2C') // Base background
     .data('id', sortedItemData.id); // Store the unique ID on the list item
 
   // Pass the parsed item to createTodoSpan and applyItemStyles
